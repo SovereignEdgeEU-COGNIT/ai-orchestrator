@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>COGNIT Test Harness for WP4</title>
+</head>
+    
+<script>
+    
+    function quickTest()
+    {
+        const response = fetch("http://127.0.0.1:8000/version");
+        document.getElementById("returnTextLabel").innerHTML=response.text;
+    }
+    
+</script>
+
+<body>
+    <br>
+    <p><strong>COGNIT Test Harness</strong></p>
+    <p>First test version!&nbsp;&nbsp;</p>
+    <p>Paul Townend, Umeå University, 2023</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <input type="button" name="QuickTestButton" id="QuickTestButton" value="Submit quick test" onClick="quickTest()">
+    <br>
+    <br>
+    <br>
+    <p><strong>Returned text:</strong></p>
+    <br>
+    <label id="returnTextLabel">Nothing returned yet</label>    
+    <br>
+    <br>
+</body>
+</html>
