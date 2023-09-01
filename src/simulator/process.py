@@ -62,7 +62,7 @@ class Process:
                 a, b = 20, 2 
                 self._cpuload = beta.rvs(a, b, size=1)
             else:
-                a, b = 2, 20 
+                a, b = 2, 200 
                 self._cpuload = beta.rvs(a, b, size=1)
         if len(self._category) == 0:
             a, b = 2, 20 

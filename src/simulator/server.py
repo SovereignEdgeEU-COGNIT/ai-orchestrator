@@ -1,6 +1,6 @@
 import random
 
-class Computer:
+class Server:
     def __init__(self, name, clock, cores=1, mem=10.0):
         self._name = name
         self._mem = mem
@@ -39,7 +39,7 @@ class Computer:
 
             process.execute()
 
-            self._cpuload += process.cpuload / self._cores
+            self._cpuload += process.cpuload / self._cores * 0.3
             if self._cpuload > 1.0:
                 self._cpuload = 1
         
