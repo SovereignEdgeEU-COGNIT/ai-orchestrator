@@ -17,6 +17,10 @@ class Server:
     @property
     def cpuload(self):
         return self._cpuload
+    
+    @property
+    def processes(self):
+        return len(self._processes)
 
     def launch(self, process):
         pid = random.randint(1, 10**30 - 1)
