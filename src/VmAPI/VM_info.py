@@ -21,6 +21,8 @@ import matplotlib
 result_path = r"/home/zhou/project/VM_Orchestration-main/out"
 json_temp = r"/home/zhou/project/VM_Orchestration-main/vm_placement_temp.json"
 
+
+'''
 def extract_info(json_file):
     tree = ET.parse(json_file)
     root = tree.getroot()
@@ -37,6 +39,14 @@ def extract_info(json_file):
         #print("MEMORY: ", MEMORY)
         #print("TIMESTAMP: ", TIMESTAMP)
     return int(vm_index), float(CPU), float(MEMORY)
+'''
+
+def extract_info(json_dict):
+    vm_index = int(json_dict["properties"]["SERVERLESS_RUNTIME"]["properties"]["VM"]["items"]["properties"]["VM_ID"])
+    CPU = float(json_dict["properties"]["SERVERLESS_RUNTIME"]["properties"]["VM"]["items"]["properties"]["REQUIREMENTS"]["properties"]["CPUS"])
+    MEMORY = int(json_dict["properties"]["SERVERLESS_RUNTIME"]["properties"]["VM"]["items"]["properties"]["REQUIREMENTS"]["properties"]["MEMORY"])
+    
+    return vm_index, CPU, MEMORY
 
 
 def ffd(vm_infos, hosts_infos):
@@ -75,13 +85,13 @@ def gen_json(vm_ind, host_ind):
     
     f_temp = open(json_temp, 'r', encoding='utf-8')
     data = json.load(f_temp)
-    print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["VM_ID"])
-    print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["HOST_ID"])
+    #print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["VM_ID"])
+    #print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["HOST_ID"])
     data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["VM_ID"] = vm_ind
     data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["HOST_ID"] = host_ind
-    print("After Correction")
-    print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["VM_ID"])
-    print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["HOST_ID"])
+    #print("After Correction")
+    #print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["VM_ID"])
+    #print(data["properties"]["PLACEMENT"]["properties"]["VM"]["items"]["properties"]["HOST_ID"])
     out_path = os.path.join(result_path, "vm{}_schedule.json".format(vm_ind))
     out_file = open(out_path, "w") 
     json.dump(data, out_file, indent=2) 
@@ -92,13 +102,13 @@ def gen_json(vm_ind, host_ind):
     return data
 
 
-def match(root_path, hosts_infos):
+def match(input_list, hosts_infos):
     collection = []
     vm_infos = {}
     result_jsons = []
-    for file in os.listdir(root_path):
+    for item in input_list:
         #print("Start analysis")
-        info = extract_info(os.path.join(root_path, file))
+        info = extract_info(item)
         #print(info)
         collection.append(info)
     #sort the data
@@ -113,15 +123,16 @@ def match(root_path, hosts_infos):
         mem_requirements += item[2]
 
     vm_map, host_infos = ffd(vm_infos, hosts_infos)
-    print(vm_map, type(vm_map))
+    #print(vm_map, type(vm_map))
 
     for vm_ind in vm_map:
         #print(vm_host, type(vm_host))
         host_ind = vm_map[vm_ind]
         json_data = gen_json(vm_ind, host_ind)
         result_jsons.append(json_data)
-
+    print("All finished")
     #return result_jsons
+    
     return vm_map
 
 
@@ -136,11 +147,19 @@ if __name__ == '__main__':
 # =============================================================================
     
 
-    root_path = r"/home/zhou/project/VM_Orchestration-main/OpenNebula-datasets/OpenNebula-datasets/vmindividualshow"
+    input_path = "/home/zhou/repo/VM_Orchestration/fake_input"
+    vms_infos = []
+    for json_input in os.listdir(input_path):
+        f_temp = open(os.path.join(input_path, json_input), 'r', encoding='utf-8')
+        data = json.load(f_temp)
+        #print(data)
+        vms_infos.append(data)
+        f_temp.close()
     hosts_infos = [[16400.0, 395890132.0], [12800.0, 792421016.0]]
 
     
-    vm_map_infos = match(root_path, hosts_infos)
+    vm_map_infos = match(vms_infos, hosts_infos)
+    print(vm_map_infos)
 
    
 

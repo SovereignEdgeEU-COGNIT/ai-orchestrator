@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import uvicorn
 from VM_info import match
 from pydantic import BaseModel
 from typing import Optional, Union, List
@@ -12,18 +13,21 @@ from typing import Optional, Union, List
 }
 '''
 
-class MonitorInfo(BaseModel):
-    vm_path: str
-    host_config: List[List[float]]
+class VMsConfig(BaseModel):
+    VMpool: List[dict]
+    Host_config: List[List[float]]
+    
 
 
 app = FastAPI()
 
 
-@app.post("/MonitorInfos/")
-async def root(basic_info: MonitorInfo):
-    root_path = basic_info.vm_path
-    hosts_infos = basic_info.host_config
-    vm_map_infos = match(root_path, hosts_infos)
+@app.post("/VM_placement/")
+async def VM_placement(Vms_info: VMsConfig):
+    vms_infos = Vms_info.VMpool
+    hosts_infos = Vms_info.Host_config
+    vm_map_infos = match(vms_infos, hosts_infos)
     return vm_map_infos
 
+if __name__ == '__main__':
+    uvicorn.run(app=app, host="127.0.0.1", port=5200)
