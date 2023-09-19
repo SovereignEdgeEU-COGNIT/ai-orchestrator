@@ -22,7 +22,7 @@ class VMsConfig(BaseModel):
 app = FastAPI()
 
 
-@app.post("/VM_placement/")
+@app.post("/")
 async def VM_placement(Vms_info: VMsConfig):
     vms_infos = Vms_info.VMpool
     hosts_infos = Vms_info.Host_config
@@ -30,4 +30,4 @@ async def VM_placement(Vms_info: VMsConfig):
     return vm_map_infos
 
 if __name__ == '__main__':
-    uvicorn.run(app=app, host="127.0.0.1", port=5200)
+    uvicorn.run(app=app, host="0.0.0.0", port=4567)
