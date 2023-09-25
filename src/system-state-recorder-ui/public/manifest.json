@@ -1,0 +1,15 @@
+{
+    "short_name": "Colonies",
+    "name": "Colonies Dashboard",
+    "icons": [
+        {
+            "src": ".//img/cognit-logo.png",
+            "sizes": "16x16",
+            "type": "image/png",
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}

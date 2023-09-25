@@ -1,0 +1,80 @@
+@import url('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.3.0/css/flag-icon.min.css');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700');
+@import '~admin-lte/plugins/fontawesome-free/css/all.min.css';
+@import '~admin-lte/plugins/icheck-bootstrap/icheck-bootstrap.min.css';
+@import '~admin-lte/dist/css/adminlte.min.css';
+@import '~react-toastify/dist/ReactToastify.min.css';
+@import 'leaflet/dist/leaflet.css';
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.main-sidebar { 
+    background: linear-gradient(135deg, rgba(79,43,151) 10%, rgba(79,34,224) 100%) !important }
+
+body {
+  font-family: 'Poppins' !important;
+  background: white;
+}
+
+th {
+    font-size: 17px;
+}
+
+td {
+    font-size: 17px;
+}
+
+tr:nth-child(even) {
+}
+
+.main-header .navbar-nav .nav-item .nav-link {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.card-header {
+    border: 0px;
+}
+
+.table {
+    padding-bottom: 60px;
+    margin-bottom: 60px;
+}
+
+.card-primary.card-outline {
+    border-top: 0px;
+}
+
+.box {
+   display: flex;
+   align-items:center;
+}
+
+.react-flow__attribution {
+    display: none;
+}
+
+.leaflet-container {
+  height: 800px;
+  width: 100%;
+}
+
+.table-header {
+   font-size:20px;
+   font-weight: bold;
+   margin-left: 10px;
+}
