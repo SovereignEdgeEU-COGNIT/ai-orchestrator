@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::prometheus::{generate_host_vm_map, get_host, get_hosts, get_vms, get_vms_for_host};
+    use crate::prometheus::{
+        generate_host_vm_map, get_host, get_host_total_mem, get_hosts, get_vms, get_vms_for_host,
+    };
 
     #[tokio::test]
     async fn test_mapping_vms_to_hosts() {
@@ -40,6 +42,12 @@ mod tests {
                 }
                 Err(e) => println!("failed to get VM for host_id={}, error: {}", host_id, e),
             }
+        }
+        for host_id in host_ids.keys() {
+            let mem = get_host_total_mem(host_id)
+                .await
+                .expect("failed to get host memory");
+            println!("host_id={} has total mem={} bytes", host_id, mem);
         }
     }
 }

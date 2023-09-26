@@ -1,5 +1,4 @@
-// use crate::core::Simulator;
-use simulator::core::Simulator;
+use staterec::core::Simulator;
 
 #[test]
 fn test_new() {

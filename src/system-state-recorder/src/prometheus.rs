@@ -1,9 +1,14 @@
+use dotenv::dotenv;
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::env;
 use std::error::Error;
 
-const PROMETHEUS_URL: &str = "http://localhost:9090";
+pub fn get_prometheus_url() -> String {
+    dotenv().ok();
+    env::var("PROMETHEUS_URL").unwrap_or_else(|_| "http://localhost:9090".to_string())
+}
 
 pub async fn fetch_metric_from_prometheus(
     url: &str,
@@ -18,6 +23,18 @@ pub async fn fetch_metric_from_prometheus(
 }
 
 pub fn parse_vm_host_id_json(data: &Value) -> Option<String> {
+    data.get("data")?
+        .get("result")?
+        .as_array()?
+        .get(0)?
+        .get("value")?
+        .as_array()?
+        .get(1)?
+        .as_str()
+        .map(String::from)
+}
+
+pub fn extract_value_from_json(data: &Value) -> Option<String> {
     data.get("data")?
         .get("result")?
         .as_array()?
@@ -69,7 +86,7 @@ fn parse_vmdata_to_dictionary(data: &Value) -> HashMap<String, String> {
 
 pub async fn get_host(vm_id: &String) -> Result<Option<String>, Box<dyn std::error::Error>> {
     let metric: &str = &format!("opennebula_vm_host_id{{one_vm_id=\"{}\"}}", vm_id);
-    let response = fetch_metric_from_prometheus(PROMETHEUS_URL, metric).await?;
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
     Ok(parse_vm_host_id_json(&response))
 }
 
@@ -122,13 +139,108 @@ pub async fn get_vms_hosts(
 
 pub async fn get_hosts() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
     let metric: &str = "opennebula_host_state";
-    let response = fetch_metric_from_prometheus(PROMETHEUS_URL, metric).await?;
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
     Ok(parse_hostdata_to_dictionary(&response))
 }
 
 pub async fn get_vms() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
     let metric: &str = "opennebula_vm_state";
-    let response = fetch_metric_from_prometheus(PROMETHEUS_URL, metric).await?;
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
     //println!("{:#?}", response);
     Ok(parse_vmdata_to_dictionary(&response))
+}
+
+pub async fn check_host_exists(hostid: &String) -> Result<bool, Box<dyn std::error::Error>> {
+    let hosts = get_hosts().await?;
+    Ok(hosts.contains_key(hostid))
+}
+
+pub async fn get_host_total_mem(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!(
+        "opennebula_host_mem_total_bytes{{one_host_id=\"{}\"}}",
+        hostid
+    );
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
+}
+
+pub async fn get_host_usage_mem(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!(
+        "opennebula_host_mem_usage_bytes{{one_host_id=\"{}\"}}",
+        hostid
+    );
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
+}
+
+pub async fn get_cpu_total(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!(
+        "opennebula_host_cpu_total_ratio{{one_host_id=\"{}\"}}",
+        hostid
+    );
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
+}
+
+pub async fn get_cpu_usage(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!(
+        "opennebula_host_cpu_usage_ratio{{one_host_id=\"{}\"}}",
+        hostid
+    );
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
+}
+
+pub async fn get_state(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!("opennebula_host_state{{one_host_id=\"{}\"}}", hostid);
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
+}
+
+pub async fn get_host_vms(hostid: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let metric: &str = &format!("opennebula_host_vms{{one_host_id=\"{}\"}}", hostid);
+    let response = fetch_metric_from_prometheus(&get_prometheus_url(), metric).await?;
+
+    match extract_value_from_json(&response) {
+        Some(value) => Ok(value),
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Failed to extract value from JSON",
+        ))),
+    }
 }
