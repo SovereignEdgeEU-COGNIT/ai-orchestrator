@@ -73,10 +73,28 @@ pub async fn get_host(vm_id: &String) -> Result<Option<String>, Box<dyn std::err
     Ok(parse_vm_host_id_json(&response))
 }
 
+pub async fn generate_host_vm_map(
+    vm_ids: &HashMap<String, String>,
+) -> Result<HashMap<String, Vec<String>>, Box<dyn Error>> {
+    let mut host_to_vms_map = HashMap::new();
+
+    for vm_id in vm_ids.keys() {
+        let vm_host_id_opt = get_host(vm_id).await?;
+        if let Some(vm_host_id) = vm_host_id_opt {
+            host_to_vms_map
+                .entry(vm_host_id)
+                .or_insert_with(Vec::new)
+                .push(vm_id.clone());
+        }
+    }
+
+    Ok(host_to_vms_map)
+}
+
 pub async fn get_vms_for_host(
     host_id: &String,
     host_ids: &HashMap<String, String>,
-    vm_ids: &HashMap<String, String>,
+    host_to_vms_map: &HashMap<String, Vec<String>>,
 ) -> Result<Vec<String>, Box<dyn Error>> {
     if !host_ids.contains_key(host_id) {
         return Err(Box::new(std::io::Error::new(
@@ -85,17 +103,7 @@ pub async fn get_vms_for_host(
         )));
     }
 
-    let mut vms_for_given_host = Vec::new();
-
-    for vm_id in vm_ids.keys() {
-        let vm_host_id_opt = get_host(vm_id).await?;
-        if let Some(vm_host_id) = vm_host_id_opt {
-            if &vm_host_id == host_id {
-                vms_for_given_host.push(vm_id.clone());
-            }
-        }
-    }
-
+    let vms_for_given_host = host_to_vms_map.get(host_id).cloned().unwrap_or_default();
     Ok(vms_for_given_host)
 }
 
@@ -103,14 +111,13 @@ pub async fn get_vms_hosts(
     host_ids: &HashMap<String, String>,
     vm_ids: &HashMap<String, String>,
 ) -> Result<HashMap<String, Vec<String>>, Box<dyn std::error::Error>> {
-    let mut host_to_vms_map = HashMap::new();
+    let host_to_vms_map = generate_host_vm_map(vm_ids).await?;
+    let filtered_map: HashMap<String, Vec<String>> = host_to_vms_map
+        .into_iter()
+        .filter(|(host_id, _)| host_ids.contains_key(host_id))
+        .collect();
 
-    for host_id in host_ids.keys() {
-        let vms = get_vms_for_host(host_id, &host_ids, &vm_ids).await?;
-        host_to_vms_map.insert(host_id.clone(), vms);
-    }
-
-    Ok(host_to_vms_map)
+    Ok(filtered_map)
 }
 
 pub async fn get_hosts() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {

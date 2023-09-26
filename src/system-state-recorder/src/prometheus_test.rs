@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::prometheus::{get_host, get_hosts, get_vms, get_vms_for_host};
+    use crate::prometheus::{generate_host_vm_map, get_host, get_hosts, get_vms, get_vms_for_host};
 
     #[tokio::test]
     async fn test_mapping_vms_to_hosts() {
@@ -28,8 +28,11 @@ mod tests {
         }
 
         println!("mapping hosts to vms:");
+        let host_to_vms_map = generate_host_vm_map(&vm_ids)
+            .await
+            .expect("failed to generate vm map");
         for host_id in host_ids.keys() {
-            match get_vms_for_host(host_id, &host_ids, &vm_ids).await {
+            match get_vms_for_host(host_id, &host_ids, &host_to_vms_map).await {
                 Ok(vms) => {
                     for vm_id in vms {
                         println!("host_id={} is running vm_id={}", host_id, vm_id);
