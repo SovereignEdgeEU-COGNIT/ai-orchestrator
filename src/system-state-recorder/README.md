@@ -47,9 +47,16 @@ ssh -v -N -L 3000:10.10.10.2:3000 root@194.28.122.112
 
 Then open browser: http://localhost:3000.
 
+## Accessing Prometheus
+```console
+ssh -v -N -L 9090:10.10.10.2:9090 root@194.28.122.112
+```
+
+Prometheus is available at http://localhost:9090.
+
 ## Accessing System State Recorder
 ```console
-ssh -v -N -L 8000:10.10.10.2:8000 root@194.28.122.112
+ssh -v -N -L 8000:10.10.10.3:8000 root@194.28.122.112
 ```
 
 The State Recorder is available at http://localhost:8000.
