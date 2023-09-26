@@ -53,13 +53,13 @@ fn parse_vmdata_to_dictionary(data: &Value) -> HashMap<String, String> {
 
     if let Some(result_array) = data["data"]["result"].as_array() {
         for item in result_array {
-            if let Some(host_id) = item["metric"]["one_vm_id"].as_str() {
+            if let Some(vm_id) = item["metric"]["one_vm_id"].as_str() {
                 if let Some(value) = item["value"]
                     .as_array()
                     .and_then(|arr| arr.get(1))
                     .and_then(Value::as_str)
                 {
-                    result.insert(host_id.to_string(), value.to_string());
+                    result.insert(vm_id.to_string(), value.to_string());
                 }
             }
         }
@@ -71,6 +71,46 @@ pub async fn get_host(vm_id: &String) -> Result<Option<String>, Box<dyn std::err
     let metric: &str = &format!("opennebula_vm_host_id{{one_vm_id=\"{}\"}}", vm_id);
     let response = fetch_metric_from_prometheus(PROMETHEUS_URL, metric).await?;
     Ok(parse_vm_host_id_json(&response))
+}
+
+pub async fn get_vms_for_host(
+    host_id: &String,
+    host_ids: &HashMap<String, String>,
+    vm_ids: &HashMap<String, String>,
+) -> Result<Vec<String>, Box<dyn Error>> {
+    if !host_ids.contains_key(host_id) {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "host_id not found",
+        )));
+    }
+
+    let mut vms_for_given_host = Vec::new();
+
+    for vm_id in vm_ids.keys() {
+        let vm_host_id_opt = get_host(vm_id).await?;
+        if let Some(vm_host_id) = vm_host_id_opt {
+            if &vm_host_id == host_id {
+                vms_for_given_host.push(vm_id.clone());
+            }
+        }
+    }
+
+    Ok(vms_for_given_host)
+}
+
+pub async fn get_vms_hosts(
+    host_ids: &HashMap<String, String>,
+    vm_ids: &HashMap<String, String>,
+) -> Result<HashMap<String, Vec<String>>, Box<dyn std::error::Error>> {
+    let mut host_to_vms_map = HashMap::new();
+
+    for host_id in host_ids.keys() {
+        let vms = get_vms_for_host(host_id, &host_ids, &vm_ids).await?;
+        host_to_vms_map.insert(host_id.clone(), vms);
+    }
+
+    Ok(host_to_vms_map)
 }
 
 pub async fn get_hosts() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
@@ -85,29 +125,3 @@ pub async fn get_vms() -> Result<HashMap<String, String>, Box<dyn std::error::Er
     //println!("{:#?}", response);
     Ok(parse_vmdata_to_dictionary(&response))
 }
-
-// #[tokio::main]
-// async fn main() -> Result<(), Box<dyn Error>> {
-//     println!("printing all known hosts:");
-//     let host_ids = get_hosts().await?;
-//     for host_id in host_ids.keys() {
-//         println!(" host_id={}", host_id);
-//     }
-
-//     println!("printing all vms:");
-//     let vms_ids = get_vms().await?;
-//     for vm_id in vms_ids.keys() {
-//         println!(" vm_id={}", vm_id);
-//     }
-
-//     println!("mapping vm to hosts:");
-//     for vm_id in vms_ids.keys() {
-//         let host_id = get_host(vm_id).await?;
-//         match host_id {
-//             Some(host_id) => println!("vm_id={} is running on host_id={}", vm_id, host_id),
-//             None => println!("Failed to retrieve host ID"),
-//         }
-//     }
-
-//     Ok(())
-// }
