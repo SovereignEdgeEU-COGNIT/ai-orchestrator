@@ -24,6 +24,7 @@ pub struct HostState {
 pub struct Host {
     hostid: String,
     vmids: Vec<String>,
+    state: HostState,
 }
 
 #[derive(Serialize)]
@@ -66,8 +67,23 @@ pub async fn index() -> Result<Json<Vec<Host>>, rocket::http::Status> {
             Ok(ids) => ids,
             _ => continue,
         };
+        let mut host_states = match GLOBAL_HOST_STATE.write() {
+            Ok(states) => states,
+            Err(_) => continue,
+        };
+
+        let host_state = match host_states.entry(host_id.clone()) {
+            std::collections::hash_map::Entry::Occupied(o) => o.get().clone(),
+            std::collections::hash_map::Entry::Vacant(v) => {
+                let default_state = HostState {
+                    renewable_energy: false,
+                };
+                v.insert(default_state).clone()
+            }
+        };
 
         mappings.push(Host {
+            state: host_state,
             hostid: host_id.clone(),
             vmids: vm_ids,
         });
