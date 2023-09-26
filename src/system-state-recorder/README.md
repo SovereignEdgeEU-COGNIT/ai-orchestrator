@@ -21,7 +21,54 @@ The binary can find here: ./target/release/staterec
 curl http://localhost:8000
 ```
 ```json
-[{"hostid":"0","vmids":[]},{"hostid":"5","vmids":[]},{"hostid":"4","vmids":["12","7"]},{"hostid":"3","vmids":["6"]},{"hostid":"2","vmids":["5"]}]
+[
+   {
+      "hostid":"0",
+      "vmids":[
+         
+      ],
+      "state":{
+         "renewable_energy":false
+      }
+   },
+   {
+      "hostid":"4",
+      "vmids":[
+         "12",
+         "7"
+      ],
+      "state":{
+         "renewable_energy":false
+      }
+   },
+   {
+      "hostid":"5",
+      "vmids":[
+         
+      ],
+      "state":{
+         "renewable_energy":false
+      }
+   },
+   {
+      "hostid":"3",
+      "vmids":[
+         "6"
+      ],
+      "state":{
+         "renewable_energy":false
+      }
+   },
+   {
+      "hostid":"2",
+      "vmids":[
+         "5"
+      ],
+      "state":{
+         "renewable_energy":false
+      }
+   }
+]
 ```
 
 ## Get information about a host
@@ -58,6 +105,11 @@ Prometheus is available at http://localhost:9090.
 ## Accessing System State Recorder
 ```console
 ssh -v -N -L 8000:10.10.10.3:8000 root@194.28.122.112
+```
+
+To access it from all hosts at the network.
+```console
+ssh -v -N -L 0.0.0.0:8000:10.10.10.3:8000 root@194.28.122.112
 ```
 
 The State Recorder is available at http://localhost:8000.
