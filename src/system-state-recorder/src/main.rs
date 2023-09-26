@@ -35,7 +35,6 @@ impl Fairing for Cors {
 
 #[launch]
 fn rocket() -> _ {
-    print!("allowing all origins");
     rocket::build().attach(Cors).mount(
         "/",
         routes![
