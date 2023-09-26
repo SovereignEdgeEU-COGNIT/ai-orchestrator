@@ -3,6 +3,7 @@ The **System State Recorder** provides contextual information obtained from the 
 
 # Installation
 ```console
+export ROCKET_ADDRESS=0.0.0.0
 export PROMETHEUS_URL="http://localhost:9090"
 cargo run
 ```
