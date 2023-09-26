@@ -6,6 +6,7 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
     const svgRef = useRef(null);
 
     useEffect(() => {
+
         const svg = d3.select(svgRef.current);
 
         const pack = d3.pack()
@@ -13,7 +14,7 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
             .padding(2);
 
         const root = d3.hierarchy(data)
-            .sum(d => d.value)
+            .sum(d => d.value || 1)  // This ensures every node has a value.
             .sort((a, b) => b.value - a.value);
 
         const maxRadius = 70
@@ -27,6 +28,7 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
         }
 
         svg.selectAll('circle').remove();
+        svg.selectAll('*').remove();
 
         const circle = svg.selectAll('circle')
             .data(nodes2)
@@ -45,7 +47,7 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
             })
             .style('fill', d => {
                 if (!d.parent) return backgroundColor;
-                if (!d.children) return '#58a';
+                if (!d.children) return '#BAC6BE';
                 if (d.parent === root) return '#f00';
                 return '#eee';
             })
@@ -77,45 +79,51 @@ const PlacementLayout = ({ backgroundColor, data }) => {
     return <CirclePacking data={data} width={300} height={300} backgroundColor={backgroundColor} />;
 }
 
+function chunkArray(myArray, chunk_size) {
+    var results = [];
+
+    while (myArray.length) {
+        results.push(myArray.splice(0, chunk_size));
+    }
+
+    return results;
+}
+
+function transform(jsonData) {
+    return jsonData.map(item => {
+        return {
+            name: `Host: ${item.hostid}`,
+            children: item.vmids.map(vmid => ({
+                name: `VM: ${vmid}`,
+                value: 70
+            }))
+        };
+    });
+}
+
 const DashboardView = (props) => {
-    let stats = props.stats
+    let placementLayout = props.stats
+    let data = transform(placementLayout)
 
-    const host1 = {
-        name: "root",
-        color: "#0074D9",
-        children: [
-            { name: "VM: 1", value: 10 },
-            // { name: "VM: 2", value: 50 },
-            // { name: "VM: 6", value: 100 },
-            // { name: "VM: 7", value: 100 },
-            // { name: "VM: 8", value: 100 },
-            // { name: "VM: 9", value: 100 },
-        ]
-    };
-
-    const host2 = {
-        name: "root",
-        color: "#0074D9",
-        children: [
-            { name: "VM: 2", value: 70 },
-            { name: "VM: 3", value: 70 },
-        ]
-    };
-
-    const host3 = {
-        name: "root",
-        color: "#0074D9",
-        children: [
-            { name: "VM: 4", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-            { name: "VM: 5", value: 70 },
-        ]
-    };
+    let items = [];
+    for (let i = 0; i < placementLayout.length; i++) {
+        if (placementLayout[i].state.renewable_energy) {
+            items.push(
+                <td>
+                    <h4 style={{ textAlign: 'center' }}>Host: {placementLayout[i].hostid}</h4>
+                    <PlacementLayout backgroundColor="#68947B" data={data[i]} />
+                </td>
+            );
+        } else {
+            items.push(
+                <td>
+                    <h4 style={{ textAlign: 'center' }}>Host: {placementLayout[i].hostid}</h4>
+                    <PlacementLayout backgroundColor="#BE947B" data={data[i]} />
+                </td>
+            );
+        }
+    }
+    let rows = chunkArray(items, 3);
 
     return (
         <div>
@@ -126,20 +134,15 @@ const DashboardView = (props) => {
                         <div className="card-body">
                             <table>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <h4 style={{ textAlign: 'center' }}>Host: 1</h4>
-                                            <PlacementLayout backgroundColor="#20A300" data={host1} />
-                                        </td>
-                                        <td>
-                                            <h4 style={{ textAlign: 'center' }}>Host: 2</h4>
-                                            <PlacementLayout backgroundColor="#CA9D00" data={host2} />
-                                        </td>
-                                        <td>
-                                            <h4 style={{ textAlign: 'center' }}>Host: 3</h4>
-                                            <PlacementLayout backgroundColor="#20A300" data={host3} />
-                                        </td>
-                                    </tr>
+                                    {rows.map((row, rowIndex) => (
+                                        <tr key={rowIndex}>
+                                            {row.map((cell, cellIndex) => (
+                                                <td key={cellIndex} style={{ padding: '15px' }}>
+                                                    {cell}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
@@ -155,7 +158,7 @@ class Page extends Component {
     constructor() {
         super();
         this.state = {
-            stats: {},
+            placementLayout: [],
             show: false
         };
     }
@@ -173,6 +176,51 @@ class Page extends Component {
     };
 
     componentDidMount() {
+        fetch('http://rocinante:8000/') // Replace with your specific endpoint if needed
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(rawPlacementLayout => {
+                let placementLayout = rawPlacementLayout.sort((a, b) => {
+                    return Number(a.hostid) - Number(b.hostid);
+                })
+
+                placementLayout.forEach(host => {
+                    host.vmids.sort((a, b) => Number(a) - Number(b));
+                });
+
+                this.setState({ placementLayout });
+            })
+            .catch(error => {
+                // this.setState({ error, isLoading: false });
+            });
+
+        this.interval = setInterval(() => {
+            fetch('http://rocinante:8000/') // Replace with your specific endpoint if needed
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(rawPlacementLayout => {
+                    let placementLayout = rawPlacementLayout.sort((a, b) => {
+                        return Number(a.hostid) - Number(b.hostid);
+                    })
+
+                    placementLayout.forEach(host => {
+                        host.vmids.sort((a, b) => Number(a) - Number(b));
+                    });
+
+                    this.setState({ placementLayout });
+                })
+                .catch(error => {
+                    // this.setState({ error, isLoading: false });
+                });
+        }, 1000)
     }
 
     componentWillUnmount() {
@@ -180,10 +228,10 @@ class Page extends Component {
     }
 
     render() {
-        const { stats } = this.state
+        const { placementLayout } = this.state
         return (
             <div>
-                <DashboardView stats={stats} />
+                <DashboardView stats={placementLayout} />
             </div>
         );
     }
