@@ -89,9 +89,15 @@ If we now get host info, the renewable_energy attribute will be set to true.
 # Simulator
 
 ## Adding a host
-To add a host with id=12.
+To add a host with id=1.
 ```console
-curl -X POST "http://localhost:8000/hosts/12"
+curl -X POST "http://localhost:8000/hosts/1"
+```
+
+## Adding a VM to a host
+To add a VM with id=1 to host with id=1.
+```console
+curl -X POST "http://localhost:8000/hosts/1/vms/1"
 ```
 
 # Testbed
@@ -124,4 +130,35 @@ The State Recorder is available at http://localhost:8000.
 ## Logging in to the scheduler VM
 ```console
 ssh -J root@194.28.122.112 root@10.10.10.3
+```
+
+```json
+{
+  "VMS": [
+    {
+      "CAPACITY": {
+        "CPU": 1.0,
+        "DISK_SIZE": 2252,
+        "MEMORY": 786432
+      },
+      "HOST_IDS": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "ID": 7,
+      "STATE": "PENDING",
+      "USER_TEMPLATE": {
+        "LOGO": "images/logos/ubuntu.png",
+        "LXD_SECURITY_PRIVILEGED": "true",
+        "SCHED_REQUIREMENTS": "ID=\"0\" | ID=\"2\" | ID=\"3\" | ID=\"4\""
+      }
+    }
+  ]
+}
+```
+
+```json
+{ "VMS": [{"ID": 7, "HOST_ID": 4}]}
 ```
