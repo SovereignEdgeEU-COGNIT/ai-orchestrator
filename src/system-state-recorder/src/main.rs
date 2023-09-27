@@ -1,15 +1,19 @@
 mod request_handler;
+
 #[macro_use]
 extern crate rocket;
+
+mod monitor;
+mod prometheus;
+mod simulator;
+
+use crate::monitor::Monitor;
+use crate::prometheus::PrometheusMonitor;
+use crate::simulator::{Simulator, SimulatorHelper};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
 use rocket::{Request, Response};
-
-/// Catches all OPTION requests in order to get the CORS related Fairing triggered.
-#[options("/<_..>")]
-fn all_options() {
-    /* Intentionally left empty */
-}
+use std::sync::Arc;
 
 pub struct Cors;
 
@@ -35,7 +39,14 @@ impl Fairing for Cors {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().attach(Cors).mount(
+    let mut simulator = Simulator::new();
+    simulator.add_host_with_vms("1".to_string(), vec!["1".to_string(), "2".to_string()]);
+    simulator.add_host_with_vms("2".to_string(), vec!["3".to_string()]);
+    let monitor: Arc<dyn Monitor + Send> = Arc::new(simulator);
+
+    //let monitor: Arc<dyn Monitor + Send> = Arc::new(PrometheusMonitor);
+
+    rocket::build().manage(monitor).attach(Cors).mount(
         "/",
         routes![
             request_handler::index,

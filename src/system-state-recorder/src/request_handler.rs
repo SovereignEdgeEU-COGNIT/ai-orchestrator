@@ -1,14 +1,13 @@
 extern crate rocket;
 extern crate serde;
 
+use crate::monitor::Monitor;
 use rocket::serde::json::Json;
+use rocket::State;
 use serde::Deserialize;
 use serde::Serialize;
-use staterec::prometheus::{
-    check_host_exists, generate_host_vm_map, get_cpu_total, get_cpu_usage, get_host_total_mem,
-    get_host_usage_mem, get_host_vms, get_hosts, get_state, get_vms, get_vms_for_host,
-};
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::sync::RwLock;
 
 lazy_static::lazy_static! {
@@ -33,37 +32,42 @@ pub struct ErrorResponse {
 }
 
 #[derive(Serialize)]
-struct HostInfo {
+pub struct HostInfo {
     state: HostState,
     total_mem_bytes: i64,
     usage_mem_bytes: i64,
     cpu_total: i64,
     cpu_usage: i64,
     powerstate: i64,
-    vms: String,
+    vms: i64,
 }
 
 #[get("/")]
-pub async fn index() -> Result<Json<Vec<Host>>, rocket::http::Status> {
-    let host_ids = match get_hosts().await {
+pub async fn index(
+    monitor: &State<Arc<dyn Monitor + Send>>,
+) -> Result<Json<Vec<Host>>, rocket::http::Status> {
+    let host_ids = match monitor.get_hosts().await {
         Ok(hosts) => hosts,
         Err(_) => return Err(rocket::http::Status::InternalServerError),
     };
 
-    let vm_ids = match get_vms().await {
+    let vm_ids = match monitor.get_vms().await {
         Ok(hosts) => hosts,
         Err(_) => return Err(rocket::http::Status::InternalServerError),
     };
 
     let mut mappings: Vec<Host> = Vec::new();
 
-    let host_to_vms_map = match generate_host_vm_map(&vm_ids).await {
+    let host_to_vms_map = match monitor.generate_host_vm_map(&vm_ids).await {
         Ok(m) => m,
         Err(_) => return Err(rocket::http::Status::InternalServerError),
     };
 
     for host_id in host_ids.keys() {
-        let vm_ids = match get_vms_for_host(host_id, &host_ids, &host_to_vms_map).await {
+        let vm_ids = match monitor
+            .get_vms_for_host(host_id, &host_ids, &host_to_vms_map)
+            .await
+        {
             Ok(ids) => ids,
             _ => continue,
         };
@@ -111,8 +115,12 @@ pub fn set_renewable(
 }
 
 #[get("/hosts/<hostid>")]
-pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorResponse>> {
-    if !check_host_exists(&hostid)
+pub async fn get_host_info(
+    monitor: &State<Arc<dyn Monitor + Send>>,
+    hostid: String,
+) -> Result<Json<HostInfo>, Json<ErrorResponse>> {
+    if !monitor
+        .check_host_exists(&hostid)
         .await
         .map_err(|_| ErrorResponse {
             error: "internal server error".to_string(),
@@ -123,7 +131,7 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }));
     }
 
-    let total_mem_bytes_str = match get_host_total_mem(&hostid).await {
+    let total_mem_bytes_str = match monitor.get_host_total_mem(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
@@ -141,7 +149,7 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }
     };
 
-    let usage_mem_bytes_str = match get_host_usage_mem(&hostid).await {
+    let usage_mem_bytes_str = match monitor.get_host_usage_mem(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
@@ -159,7 +167,7 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }
     };
 
-    let cpu_total_str = match get_cpu_total(&hostid).await {
+    let cpu_total_str = match monitor.get_cpu_total(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
@@ -177,7 +185,7 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }
     };
 
-    let cpu_usage_str = match get_cpu_usage(&hostid).await {
+    let cpu_usage_str = match monitor.get_cpu_usage(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
@@ -195,7 +203,7 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }
     };
 
-    let powerstate_str = match get_state(&hostid).await {
+    let powerstate_str = match monitor.get_state(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
@@ -213,11 +221,20 @@ pub async fn get_host_info(hostid: String) -> Result<Json<HostInfo>, Json<ErrorR
         }
     };
 
-    let vms = match get_state(&hostid).await {
+    let vms_str = match monitor.get_host_vms(&hostid).await {
         Ok(mem) => mem,
         Err(_) => {
             return Err(Json(ErrorResponse {
                 error: "failed to fetch used cpus for host".to_string(),
+            }))
+        }
+    };
+
+    let vms = match vms_str.parse::<i64>() {
+        Ok(i) => i,
+        Err(_) => {
+            return Err(Json(ErrorResponse {
+                error: "failed to parse total cpu for host".to_string(),
             }))
         }
     };
