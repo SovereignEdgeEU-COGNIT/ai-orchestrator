@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 pub struct VM {
-    vmid: String,
+    pub vmid: String,
 }
 
 pub struct Host {

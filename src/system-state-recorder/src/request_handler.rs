@@ -3,6 +3,8 @@ extern crate serde;
 
 use crate::monitor::Monitor;
 use crate::simulator::Host as SimHost;
+use crate::simulator::VM;
+use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
@@ -26,6 +28,12 @@ pub struct Host {
     hostid: String,
     vmids: Vec<String>,
     state: HostState,
+}
+
+#[derive(Serialize)]
+pub struct Response {
+    status: &'static str,
+    message: &'static str,
 }
 
 #[derive(Serialize)]
@@ -275,19 +283,94 @@ pub async fn get_host_info(
 pub async fn add_host(
     hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
     hostid: Option<String>,
-) -> &'static str {
+) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
     if let Some(host_id) = hostid {
         let mut host_guarded = hosts
             .inner()
             .lock()
-            .expect("Failed to lock the shared simulator");
+            .expect("failed to lock the shared simulator");
+
+        if host_guarded.contains_key(&host_id) {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "a host with the specified id already exists".to_string(),
+                }),
+            ));
+        }
+
         let host = SimHost {
             hostid: host_id,
             vms: Vec::new(),
         };
         host_guarded.insert(host.hostid.clone(), host);
-        "host added successfully"
+
+        return Ok(Json(Response {
+            status: "success",
+            message: "host added successfully",
+        }));
     } else {
-        "hostid is required"
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "hostid is required".to_string(),
+            }),
+        ));
+    }
+}
+
+#[post("/hosts/<hostid>/vms/<vmsid>")]
+pub async fn add_vm(
+    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+    hostid: Option<String>,
+    vmsid: Option<String>,
+) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
+    if let Some(host_id) = hostid {
+        if let Some(vm_id) = vmsid {
+            let mut host_guarded = hosts
+                .inner()
+                .lock()
+                .expect("failed to lock the shared simulator");
+
+            if let Some(host) = host_guarded.get_mut(&host_id) {
+                if host.vms.iter().any(|vm| vm.vmid == vm_id) {
+                    return Err((
+                        Status::BadRequest,
+                        Json(ErrorResponse {
+                            error: "a VM with the specified id already exists".to_string(),
+                        }),
+                    ));
+                }
+
+                let vm = VM { vmid: vm_id };
+                host.vms.push(vm);
+
+                return Ok(Json(Response {
+                    status: "success",
+                    message: "vm added successfully",
+                }));
+            } else {
+                return Err((
+                    Status::BadRequest,
+                    Json(ErrorResponse {
+                        error: "specified hostid does not exist".to_string(),
+                    }),
+                ));
+            }
+        } else {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "vmsid is required".to_string(),
+                }),
+            ));
+        }
+    } else {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "hostid is required".to_string(),
+            }),
+        ));
     }
 }

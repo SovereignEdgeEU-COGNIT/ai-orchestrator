@@ -68,6 +68,7 @@ fn rocket() -> _ {
                     request_handler::set_renewable,
                     request_handler::get_host_info,
                     request_handler::add_host,
+                    request_handler::add_vm,
                 ],
             )
     } else {
