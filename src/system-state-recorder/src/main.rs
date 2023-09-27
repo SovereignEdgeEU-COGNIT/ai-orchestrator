@@ -9,11 +9,21 @@ mod simulator;
 
 use crate::monitor::Monitor;
 use crate::prometheus::PrometheusMonitor;
-use crate::simulator::{Simulator, SimulatorHelper};
+use crate::simulator::{Host, Simulator, SimulatorFactory};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
 use rocket::{Request, Response};
+use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::Mutex;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+#[structopt(name = "staterec", about = "system state recorder")]
+struct Opt {
+    #[structopt(short, long)]
+    sim: bool,
+}
 
 pub struct Cors;
 
@@ -39,19 +49,36 @@ impl Fairing for Cors {
 
 #[launch]
 fn rocket() -> _ {
-    let mut simulator = Simulator::new();
-    simulator.add_host_with_vms("1".to_string(), vec!["1".to_string(), "2".to_string()]);
-    simulator.add_host_with_vms("2".to_string(), vec!["3".to_string()]);
-    let monitor: Arc<dyn Monitor + Send> = Arc::new(simulator);
+    let opt = Opt::from_args();
 
-    //let monitor: Arc<dyn Monitor + Send> = Arc::new(PrometheusMonitor);
+    if opt.sim {
+        let hosts: HashMap<String, Host> = HashMap::new();
+        let shared_hosts = Arc::new(Mutex::new(hosts));
+        let simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
+        let monitor: Arc<dyn Monitor + Send> = Arc::new(simulator);
 
-    rocket::build().manage(monitor).attach(Cors).mount(
-        "/",
-        routes![
-            request_handler::index,
-            request_handler::set_renewable,
-            request_handler::get_host_info
-        ],
-    )
+        rocket::build()
+            .manage(monitor)
+            .manage(shared_hosts)
+            .attach(Cors)
+            .mount(
+                "/",
+                routes![
+                    request_handler::index,
+                    request_handler::set_renewable,
+                    request_handler::get_host_info,
+                    request_handler::add_host,
+                ],
+            )
+    } else {
+        let monitor: Arc<dyn Monitor + Send> = Arc::new(PrometheusMonitor);
+        rocket::build().manage(monitor).attach(Cors).mount(
+            "/",
+            routes![
+                request_handler::index,
+                request_handler::set_renewable,
+                request_handler::get_host_info
+            ],
+        )
+    }
 }

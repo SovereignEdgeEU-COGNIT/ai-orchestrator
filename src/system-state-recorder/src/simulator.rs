@@ -2,22 +2,27 @@ use crate::monitor::Monitor;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::error::Error;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 pub struct VM {
     vmid: String,
 }
 
 pub struct Host {
-    hostid: String,
-    vms: Vec<VM>,
+    pub hostid: String,
+    pub vms: Vec<VM>,
 }
 
 pub struct Simulator {
-    hosts: HashMap<String, Host>,
+    hosts: Arc<Mutex<HashMap<String, Host>>>,
+}
+
+pub trait SimulatorFactory {
+    fn new(hosts: Arc<Mutex<HashMap<String, Host>>>) -> Self;
 }
 
 pub trait SimulatorHelper {
-    fn new() -> Self;
     fn add_host(&mut self, host: Host);
 
     fn add_host_with_vms(&mut self, host_id: String, vm_ids: Vec<String>) {
@@ -28,24 +33,34 @@ pub trait SimulatorHelper {
         };
         self.add_host(host);
     }
+    fn add_empty_host(&mut self, host_id: String);
+}
+
+impl SimulatorFactory for Simulator {
+    fn new(hosts: Arc<Mutex<HashMap<String, Host>>>) -> Self {
+        Simulator { hosts }
+    }
 }
 
 impl SimulatorHelper for Simulator {
-    fn new() -> Self {
-        Simulator {
-            hosts: HashMap::new(),
-        }
-    }
     fn add_host(&mut self, host: Host) {
-        self.hosts.insert(host.hostid.clone(), host);
+        let mut hosts_guard = self.hosts.lock().unwrap();
+        hosts_guard.insert(host.hostid.clone(), host);
+    }
+    fn add_empty_host(&mut self, host_id: String) {
+        let host = Host {
+            hostid: host_id,
+            vms: Vec::new(),
+        };
+        self.add_host(host);
     }
 }
 
 #[async_trait]
 impl Monitor for Simulator {
     async fn get_host_vms(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
-        let vms_count = self
-            .hosts
+        let hosts_guard = self.hosts.lock().unwrap();
+        let vms_count = hosts_guard
             .get(hostid)
             .map(|host| host.vms.len())
             .ok_or_else(|| format!("Host {} not found", hostid))?;
@@ -58,7 +73,8 @@ impl Monitor for Simulator {
     }
 
     async fn get_host(&self, vmid: &String) -> Result<Option<String>, Box<dyn Error>> {
-        for (hostid, host) in &self.hosts {
+        let hosts_guard = self.hosts.lock().unwrap();
+        for (hostid, host) in hosts_guard.iter() {
             if host.vms.iter().any(|vm| *vm.vmid == *vmid) {
                 return Ok(Some(hostid.clone()));
             }
@@ -75,8 +91,8 @@ impl Monitor for Simulator {
         _vm_ids: &HashMap<String, String>,
     ) -> Result<HashMap<String, Vec<String>>, Box<dyn Error>> {
         let mut map = HashMap::new();
-
-        for (hostid, host) in &self.hosts {
+        let hosts_guard = self.hosts.lock().unwrap();
+        for (hostid, host) in hosts_guard.iter() {
             let vm_ids_for_host: Vec<String> = host.vms.iter().map(|vm| vm.vmid.clone()).collect();
             map.insert(hostid.clone(), vm_ids_for_host);
         }
@@ -100,20 +116,23 @@ impl Monitor for Simulator {
 
     async fn get_hosts(&self) -> Result<HashMap<String, String>, Box<dyn Error>> {
         let mut result = HashMap::new();
-        for (host_id, _host) in &self.hosts {
+        let hosts_guard = self.hosts.lock().unwrap();
+        for (host_id, _) in hosts_guard.iter() {
             result.insert(host_id.clone(), "2".to_string());
         }
         Ok(result)
     }
 
     async fn check_host_exists(&self, hostid: &String) -> Result<bool, Box<dyn Error>> {
-        Ok(self.hosts.contains_key(hostid))
+        let hosts_guard = self.hosts.lock().unwrap();
+        Ok(hosts_guard.contains_key(hostid))
     }
 
     async fn get_vms(&self) -> Result<HashMap<String, String>, Box<dyn Error>> {
         let mut vms_map = HashMap::new();
 
-        for host in self.hosts.values() {
+        let hosts_guard = self.hosts.lock().unwrap();
+        for host in hosts_guard.values() {
             for vm in &host.vms {
                 vms_map.insert(vm.vmid.clone(), "2".to_string());
             }

@@ -216,20 +216,6 @@ impl Monitor for PrometheusMonitor {
         }
     }
 
-    // async fn get_vms_hosts(
-    //     &self,
-    //     host_ids: &HashMap<String, String>,
-    //     vm_ids: &HashMap<String, String>,
-    // ) -> Result<HashMap<String, Vec<String>>, Box<dyn std::error::Error>> {
-    //     let host_to_vms_map = self.generate_host_vm_map(vm_ids).await?;
-    //     let filtered_map: HashMap<String, Vec<String>> = host_to_vms_map
-    //         .into_iter()
-    //         .filter(|(host_id, _)| host_ids.contains_key(host_id))
-    //         .collect();
-
-    //     Ok(filtered_map)
-    // }
-
     async fn get_vms_for_host(
         &self,
         host_id: &String,

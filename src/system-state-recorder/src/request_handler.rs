@@ -2,12 +2,14 @@ extern crate rocket;
 extern crate serde;
 
 use crate::monitor::Monitor;
+use crate::simulator::Host as SimHost;
 use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::RwLock;
 
 lazy_static::lazy_static! {
@@ -267,4 +269,25 @@ pub async fn get_host_info(
         powerstate,
         vms,
     }))
+}
+
+#[post("/hosts/<hostid>")]
+pub async fn add_host(
+    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+    hostid: Option<String>,
+) -> &'static str {
+    if let Some(host_id) = hostid {
+        let mut host_guarded = hosts
+            .inner()
+            .lock()
+            .expect("Failed to lock the shared simulator");
+        let host = SimHost {
+            hostid: host_id,
+            vms: Vec::new(),
+        };
+        host_guarded.insert(host.hostid.clone(), host);
+        "host added successfully"
+    } else {
+        "hostid is required"
+    }
 }

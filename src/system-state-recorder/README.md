@@ -86,8 +86,15 @@ curl -X PUT "http://localhost:8000/set?hostid=2&renewable=true"
 
 If we now get host info, the renewable_energy attribute will be set to true.
 
-# Testbed
+# Simulator
 
+## Adding a host
+To add a host with id=12.
+```console
+curl -X POST "http://localhost:8000/hosts/12"
+```
+
+# Testbed
 ## Accessing Grafana
 ```console
 ssh -v -N -L 3000:10.10.10.2:3000 root@194.28.122.112

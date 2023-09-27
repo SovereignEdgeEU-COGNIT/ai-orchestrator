@@ -1,13 +1,20 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        monitor::Monitor,
-        simulator::{Simulator, SimulatorHelper},
-    };
+    use crate::monitor::Monitor;
+    use crate::simulator::Host;
+    use crate::simulator::Simulator;
+    use crate::simulator::SimulatorFactory;
+    use crate::simulator::SimulatorHelper;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use std::sync::Mutex;
 
     #[tokio::test]
     async fn test_simulator() {
-        let mut simulator = Simulator::new();
+        let hosts: HashMap<String, Host> = HashMap::new();
+        let shared_hosts = Arc::new(Mutex::new(hosts));
+        let mut simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
+
         simulator.add_host_with_vms("1".to_string(), vec!["1".to_string(), "2".to_string()]);
         simulator.add_host_with_vms("2".to_string(), vec!["3".to_string()]);
         let host_vms = simulator
