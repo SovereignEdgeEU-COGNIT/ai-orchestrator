@@ -87,6 +87,11 @@ curl -X PUT "http://localhost:8000/set?hostid=2&renewable=true"
 If we now get host info, the renewable_energy attribute will be set to true.
 
 # Simulator
+## Starting simulator
+The URL is where the AI Orchestrator runs.
+```console
+./staterec --sim http://localhost:5678   
+```
 
 ## Adding a host
 To add a host with id=1.

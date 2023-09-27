@@ -23,6 +23,7 @@ use structopt::StructOpt;
 struct Opt {
     #[structopt(short, long)]
     sim: bool,
+    aiorchestrator: Option<String>,
 }
 
 pub struct Cors;
@@ -52,6 +53,10 @@ fn rocket() -> _ {
     let opt = Opt::from_args();
 
     if opt.sim {
+        if let Some(url) = opt.aiorchestrator {
+            println!("aiorchestrator url={}", url);
+        }
+
         let hosts: HashMap<String, Host> = HashMap::new();
         let shared_hosts = Arc::new(Mutex::new(hosts));
         let simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
