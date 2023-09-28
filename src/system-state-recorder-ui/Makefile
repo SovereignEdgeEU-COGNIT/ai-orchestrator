@@ -1,8 +1,8 @@
 all: container 
 .PHONY: all container 
 
-BUILD_IMAGE ?= johan/congitssr
-PUSH_IMAGE ?= johan/cognitssr
+BUILD_IMAGE ?= cognit/demo
+PUSH_IMAGE ?= cognit/demo
 
 container:
 	docker build -t $(BUILD_IMAGE) .
