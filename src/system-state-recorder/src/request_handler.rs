@@ -62,14 +62,6 @@ pub struct VMDeployQuery {
     cpu: Option<String>,
 }
 
-// #[derive(FromForm)]
-// pub struct VMAddQuery {
-//     hostid: Option<String>,
-//     vmid: Option<String>,
-//     mem: Option<String>,
-//     cpu: Option<String>,
-// }
-
 #[derive(FromForm)]
 pub struct HostAddQuery {
     hostid: Option<String>,
@@ -378,105 +370,6 @@ pub async fn add_host(
     }
 }
 
-// #[post("/addvm?<query_params..>")]
-// pub async fn add_vm(
-//     hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
-//     query_params: VMAddQuery,
-// ) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
-//     if query_params.hostid.is_none() {
-//         return Err((
-//             Status::BadRequest,
-//             Json(ErrorResponse {
-//                 error: "hostid is not provided".to_string(),
-//             }),
-//         ));
-//     }
-//     if query_params.vmid.is_none() {
-//         return Err((
-//             Status::BadRequest,
-//             Json(ErrorResponse {
-//                 error: "vmid is not provided".to_string(),
-//             }),
-//         ));
-//     }
-//     if query_params.mem.is_none() {
-//         return Err((
-//             Status::BadRequest,
-//             Json(ErrorResponse {
-//                 error: "mem is not provided".to_string(),
-//             }),
-//         ));
-//     }
-//     if query_params.cpu.is_none() {
-//         return Err((
-//             Status::BadRequest,
-//             Json(ErrorResponse {
-//                 error: "cpu is not provided".to_string(),
-//             }),
-//         ));
-//     }
-
-//     {
-//         let mut hosts_guarded = hosts
-//             .inner()
-//             .lock()
-//             .expect("failed to lock the shared simulator");
-//         let hostid: i64 = query_params
-//             .hostid
-//             .as_ref()
-//             .and_then(|s| s.parse().ok())
-//             .unwrap_or_default();
-//         let vmid: i64 = query_params
-//             .vmid
-//             .as_ref()
-//             .and_then(|s| s.parse().ok())
-//             .unwrap_or_default();
-//         let cpu: i64 = query_params
-//             .cpu
-//             .as_ref()
-//             .and_then(|s| s.parse().ok())
-//             .unwrap_or_default();
-//         let mem: i64 = query_params
-//             .mem
-//             .as_ref()
-//             .and_then(|s| s.parse().ok())
-//             .unwrap_or_default();
-
-//         if let Some(host) = hosts_guarded.get_mut(&hostid.to_string()) {
-//             if host.vms.iter().any(|vm| vm.vmid == vmid.to_string()) {
-//                 return Err((
-//                     Status::BadRequest,
-//                     Json(ErrorResponse {
-//                         error: "a vm with the specified id already exists".to_string(),
-//                     }),
-//                 ));
-//             }
-
-//             check_cpu_usage(&hosts_guarded, &hostid.to_string(), cpu)?;
-//             check_mem_usage(&hosts_guarded, &hostid.to_string(), mem)?;
-
-//             let vm = VM {
-//                 vmid: vmid.to_string(),
-//                 mem: mem,
-//                 cpu: cpu,
-//             };
-//             host.vms.push(vm);
-
-//             return Ok(Json(Response {
-//                 status: "success".to_string(),
-//                 message: format!("vmid={} was deployed at hostid={}", vmid, hostid),
-//             }));
-//         } else {
-//             return Err((
-//                 Status::BadRequest,
-//                 Json(ErrorResponse {
-//                     error: "specified hostid does not exist".to_string(),
-//                 }),
-//             ));
-//         }
-//     };
-// }
-
 fn check_cpu_usage(
     hosts_guarded: &MutexGuard<'_, HashMap<String, SimHost>>,
     host_id_str: &String,
@@ -784,4 +677,12 @@ pub async fn place_vm(
         status: "success".to_string(),
         message: msg,
     }))
+}
+
+#[get("/issim")]
+pub fn is_sim(is_sim: &State<Arc<bool>>) -> Result<Json<bool>, Status> {
+    match **is_sim.inner() {
+        true => Ok(Json(true)),
+        false => Ok(Json(false)),
+    }
 }

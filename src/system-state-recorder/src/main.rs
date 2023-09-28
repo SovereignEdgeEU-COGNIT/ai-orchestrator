@@ -63,14 +63,13 @@ fn rocket() -> _ {
         let shared_hosts = Arc::new(Mutex::new(hosts));
         let simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
         let monitor: Arc<dyn Monitor + Send> = Arc::new(simulator);
+        let is_sim = Arc::new(opt.sim);
 
         let aiorchestrator_url = Arc::new(
             opt.aiorchestrator
                 .as_ref()
                 .map_or_else(|| "".to_string(), |s| s.clone()),
         );
-
-        let is_sim = Arc::new(opt.sim);
 
         rocket::build()
             .manage(monitor)
@@ -85,19 +84,25 @@ fn rocket() -> _ {
                     request_handler::set_renewable,
                     request_handler::get_host_info,
                     request_handler::add_host,
-                    //request_handler::add_vm,
                     request_handler::place_vm,
+                    request_handler::is_sim,
                 ],
             )
     } else {
         let monitor: Arc<dyn Monitor + Send> = Arc::new(PrometheusMonitor);
-        rocket::build().manage(monitor).attach(Cors).mount(
-            "/",
-            routes![
-                request_handler::index,
-                request_handler::set_renewable,
-                request_handler::get_host_info
-            ],
-        )
+        let is_sim = Arc::new(opt.sim);
+        rocket::build()
+            .manage(monitor)
+            .manage(is_sim)
+            .attach(Cors)
+            .mount(
+                "/",
+                routes![
+                    request_handler::index,
+                    request_handler::set_renewable,
+                    request_handler::get_host_info,
+                    request_handler::is_sim,
+                ],
+            )
     }
 }
