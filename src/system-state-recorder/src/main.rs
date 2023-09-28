@@ -4,6 +4,8 @@ mod request_handler;
 extern crate rocket;
 
 mod monitor;
+mod placement_request;
+mod placement_response;
 mod prometheus;
 mod simulator;
 
@@ -53,7 +55,7 @@ fn rocket() -> _ {
     let opt = Opt::from_args();
 
     if opt.sim {
-        if let Some(url) = opt.aiorchestrator {
+        if let Some(url) = opt.aiorchestrator.clone() {
             println!("aiorchestrator url={}", url);
         }
 
@@ -62,9 +64,19 @@ fn rocket() -> _ {
         let simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
         let monitor: Arc<dyn Monitor + Send> = Arc::new(simulator);
 
+        let aiorchestrator_url = Arc::new(
+            opt.aiorchestrator
+                .as_ref()
+                .map_or_else(|| "".to_string(), |s| s.clone()),
+        );
+
+        let is_sim = Arc::new(opt.sim);
+
         rocket::build()
             .manage(monitor)
             .manage(shared_hosts)
+            .manage(aiorchestrator_url)
+            .manage(is_sim)
             .attach(Cors)
             .mount(
                 "/",
@@ -74,6 +86,7 @@ fn rocket() -> _ {
                     request_handler::get_host_info,
                     request_handler::add_host,
                     request_handler::add_vm,
+                    request_handler::place_vm,
                 ],
             )
     } else {

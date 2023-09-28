@@ -2,6 +2,8 @@ extern crate rocket;
 extern crate serde;
 
 use crate::monitor::Monitor;
+use crate::placement_request::*;
+use crate::placement_response::*;
 use crate::simulator::Host as SimHost;
 use crate::simulator::VM;
 use rocket::http::Status;
@@ -32,8 +34,8 @@ pub struct Host {
 
 #[derive(Serialize)]
 pub struct Response {
-    status: &'static str,
-    message: &'static str,
+    status: String,
+    message: String,
 }
 
 #[derive(Serialize)]
@@ -306,8 +308,8 @@ pub async fn add_host(
         host_guarded.insert(host.hostid.clone(), host);
 
         return Ok(Json(Response {
-            status: "success",
-            message: "host added successfully",
+            status: "success".to_string(),
+            message: "host added successfully".to_string(),
         }));
     } else {
         return Err((
@@ -337,7 +339,7 @@ pub async fn add_vm(
                     return Err((
                         Status::BadRequest,
                         Json(ErrorResponse {
-                            error: "a VM with the specified id already exists".to_string(),
+                            error: "a vm with the specified id already exists".to_string(),
                         }),
                     ));
                 }
@@ -346,8 +348,8 @@ pub async fn add_vm(
                 host.vms.push(vm);
 
                 return Ok(Json(Response {
-                    status: "success",
-                    message: "vm added successfully",
+                    status: "success".to_string(),
+                    message: "vm added successfully".to_string(),
                 }));
             } else {
                 return Err((
@@ -373,4 +375,171 @@ pub async fn add_vm(
             }),
         ));
     }
+}
+
+#[derive(FromForm)]
+pub struct VmDeployQuery {
+    vmid: Option<String>,
+    mem: Option<String>,
+    cpu: Option<String>,
+    disk: Option<String>,
+}
+
+#[post("/deploy?<query_params..>")]
+pub async fn place_vm(
+    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+    aiorchestrator_url: &State<Arc<String>>,
+    query_params: VmDeployQuery,
+) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
+    print!("{}", &**aiorchestrator_url);
+    if query_params.vmid.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "vmid is not provided".to_string(),
+            }),
+        ));
+    }
+    if query_params.mem.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "mem is not provided".to_string(),
+            }),
+        ));
+    }
+    if query_params.cpu.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "cpu is not provided".to_string(),
+            }),
+        ));
+    }
+    if query_params.disk.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "disk is not provided".to_string(),
+            }),
+        ));
+    }
+
+    let json_data = {
+        let mut hosts_guarded = hosts
+            .inner()
+            .lock()
+            .expect("failed to lock the shared simulator");
+        let vmid: i32 = query_params
+            .vmid
+            .as_ref()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or_default();
+        let cpu: f32 = query_params
+            .cpu
+            .as_ref()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or_default();
+        let memory: i32 = query_params
+            .mem
+            .as_ref()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or_default();
+        let disk_size: i32 = query_params
+            .disk
+            .as_ref()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or_default();
+        let host_ids_vec: Vec<i32> = hosts_guarded
+            .values()
+            .filter_map(|host| host.hostid.parse::<i32>().ok()) // use filter_map to only keep successful parses
+            .collect();
+
+        let host_ids: Vec<String> = hosts_guarded.keys().cloned().collect(); // Collect the keys
+        for host_id in host_ids {
+            if let Some(host) = hosts_guarded.get_mut(&host_id) {
+                if host.vms.iter().any(|vm| vm.vmid == vmid.to_string()) {
+                    return Err((
+                        Status::BadRequest,
+                        Json(ErrorResponse {
+                            error: "a vm with the specified id already exists".to_string(),
+                        }),
+                    ));
+                }
+            }
+        }
+
+        generate_placement_request_json(cpu, disk_size, memory, vmid, host_ids_vec)
+    };
+
+    let client = reqwest::Client::new();
+    let response = client
+        .post((**aiorchestrator_url).as_str())
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .body(json_data.clone())
+        .send()
+        .await
+        .map_err(|_| {
+            (
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "failed to connect to the ai orchestrator".to_string(),
+                }),
+            )
+        })?;
+
+    let text = response.text().await.map_err(|_| {
+        (
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "error reading response".to_string(),
+            }),
+        )
+    })?;
+
+    let data = parse_placement_response_json(text.as_str()).map_err(|e| {
+        println!("error parsing JSON: {:?}", e);
+        (
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "error parsing the JSON response".to_string(),
+            }),
+        )
+    })?;
+
+    {
+        let mut hosts_guarded = hosts
+            .inner()
+            .lock()
+            .expect("failed to lock the shared simulator");
+        for vm in &data.VMS {
+            let host_id_str = vm.HOST_ID.to_string();
+
+            if let Some(host) = hosts_guarded.get_mut(&host_id_str) {
+                let vm = VM {
+                    vmid: vm.ID.to_string(),
+                };
+                host.vms.push(vm);
+            } else {
+                return Err((
+                    Status::BadRequest,
+                    Json(ErrorResponse {
+                        error: "specified hostid does not exist".to_string(),
+                    }),
+                ));
+            }
+        }
+    }
+
+    let msg = data
+        .VMS
+        .iter()
+        .map(|vm| format!("vmid={} was deployed at hostid={}", vm.ID, vm.HOST_ID))
+        .collect::<Vec<String>>()
+        .join(", ");
+
+    Ok(Json(Response {
+        status: "success".to_string(),
+        message: msg,
+    }))
 }
