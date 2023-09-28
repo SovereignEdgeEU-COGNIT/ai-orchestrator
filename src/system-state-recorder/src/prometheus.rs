@@ -133,10 +133,7 @@ impl Monitor for PrometheusMonitor {
         }
     }
 
-    async fn get_host_total_mem(
-        &self,
-        hostid: &String,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    async fn get_host_total_mem(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
         let metric: &str = &format!(
             "opennebula_host_mem_total_bytes{{one_host_id=\"{}\"}}",
             hostid

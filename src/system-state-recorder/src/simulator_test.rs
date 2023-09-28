@@ -15,8 +15,13 @@ mod tests {
         let shared_hosts = Arc::new(Mutex::new(hosts));
         let mut simulator: Simulator = SimulatorFactory::new(Arc::clone(&shared_hosts));
 
-        simulator.add_host_with_vms("1".to_string(), vec!["1".to_string(), "2".to_string()]);
-        simulator.add_host_with_vms("2".to_string(), vec!["3".to_string()]);
+        simulator.add_host_with_vms(
+            "1".to_string(),
+            vec!["1".to_string(), "2".to_string()],
+            33545162752,
+            1600,
+        );
+        simulator.add_host_with_vms("2".to_string(), vec!["3".to_string()], 33545162752, 1600);
         let host_vms = simulator
             .get_host_vms(&"2".to_string())
             .await

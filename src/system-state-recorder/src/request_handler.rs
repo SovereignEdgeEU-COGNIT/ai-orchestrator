@@ -14,6 +14,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::MutexGuard;
 use std::sync::RwLock;
 
 lazy_static::lazy_static! {
@@ -52,6 +53,28 @@ pub struct HostInfo {
     cpu_usage: i64,
     powerstate: i64,
     vms: i64,
+}
+
+#[derive(FromForm)]
+pub struct VMDeployQuery {
+    vmid: Option<String>,
+    mem: Option<String>,
+    cpu: Option<String>,
+}
+
+// #[derive(FromForm)]
+// pub struct VMAddQuery {
+//     hostid: Option<String>,
+//     vmid: Option<String>,
+//     mem: Option<String>,
+//     cpu: Option<String>,
+// }
+
+#[derive(FromForm)]
+pub struct HostAddQuery {
+    hostid: Option<String>,
+    mem: Option<String>,
+    cpu: Option<String>,
 }
 
 #[get("/")]
@@ -281,18 +304,57 @@ pub async fn get_host_info(
     }))
 }
 
-#[post("/hosts/<hostid>")]
+#[post("/addhost?<query_params..>")]
 pub async fn add_host(
     hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
-    hostid: Option<String>,
+    query_params: HostAddQuery,
 ) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
-    if let Some(host_id) = hostid {
+    if query_params.hostid.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "hostid is not provided".to_string(),
+            }),
+        ));
+    }
+    if query_params.mem.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "mem is not provided".to_string(),
+            }),
+        ));
+    }
+    if query_params.cpu.is_none() {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "cpu is not provided".to_string(),
+            }),
+        ));
+    }
+    let hostid: i64 = query_params
+        .hostid
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+    let cpu: i64 = query_params
+        .cpu
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+    let mem: i64 = query_params
+        .mem
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+    {
         let mut host_guarded = hosts
             .inner()
             .lock()
             .expect("failed to lock the shared simulator");
 
-        if host_guarded.contains_key(&host_id) {
+        if host_guarded.contains_key(&hostid.to_string()) {
             return Err((
                 Status::BadRequest,
                 Json(ErrorResponse {
@@ -302,8 +364,10 @@ pub async fn add_host(
         }
 
         let host = SimHost {
-            hostid: host_id,
+            hostid: hostid.to_string(),
             vms: Vec::new(),
+            mem: mem,
+            cpu: cpu,
         };
         host_guarded.insert(host.hostid.clone(), host);
 
@@ -311,85 +375,259 @@ pub async fn add_host(
             status: "success".to_string(),
             message: "host added successfully".to_string(),
         }));
-    } else {
-        return Err((
-            Status::BadRequest,
-            Json(ErrorResponse {
-                error: "hostid is required".to_string(),
-            }),
-        ));
     }
 }
 
-#[post("/hosts/<hostid>/vms/<vmsid>")]
-pub async fn add_vm(
-    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
-    hostid: Option<String>,
-    vmsid: Option<String>,
-) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
-    if let Some(host_id) = hostid {
-        if let Some(vm_id) = vmsid {
-            let mut host_guarded = hosts
-                .inner()
-                .lock()
-                .expect("failed to lock the shared simulator");
+// #[post("/addvm?<query_params..>")]
+// pub async fn add_vm(
+//     hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+//     query_params: VMAddQuery,
+// ) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
+//     if query_params.hostid.is_none() {
+//         return Err((
+//             Status::BadRequest,
+//             Json(ErrorResponse {
+//                 error: "hostid is not provided".to_string(),
+//             }),
+//         ));
+//     }
+//     if query_params.vmid.is_none() {
+//         return Err((
+//             Status::BadRequest,
+//             Json(ErrorResponse {
+//                 error: "vmid is not provided".to_string(),
+//             }),
+//         ));
+//     }
+//     if query_params.mem.is_none() {
+//         return Err((
+//             Status::BadRequest,
+//             Json(ErrorResponse {
+//                 error: "mem is not provided".to_string(),
+//             }),
+//         ));
+//     }
+//     if query_params.cpu.is_none() {
+//         return Err((
+//             Status::BadRequest,
+//             Json(ErrorResponse {
+//                 error: "cpu is not provided".to_string(),
+//             }),
+//         ));
+//     }
 
-            if let Some(host) = host_guarded.get_mut(&host_id) {
-                if host.vms.iter().any(|vm| vm.vmid == vm_id) {
-                    return Err((
-                        Status::BadRequest,
-                        Json(ErrorResponse {
-                            error: "a vm with the specified id already exists".to_string(),
-                        }),
-                    ));
-                }
+//     {
+//         let mut hosts_guarded = hosts
+//             .inner()
+//             .lock()
+//             .expect("failed to lock the shared simulator");
+//         let hostid: i64 = query_params
+//             .hostid
+//             .as_ref()
+//             .and_then(|s| s.parse().ok())
+//             .unwrap_or_default();
+//         let vmid: i64 = query_params
+//             .vmid
+//             .as_ref()
+//             .and_then(|s| s.parse().ok())
+//             .unwrap_or_default();
+//         let cpu: i64 = query_params
+//             .cpu
+//             .as_ref()
+//             .and_then(|s| s.parse().ok())
+//             .unwrap_or_default();
+//         let mem: i64 = query_params
+//             .mem
+//             .as_ref()
+//             .and_then(|s| s.parse().ok())
+//             .unwrap_or_default();
 
-                let vm = VM { vmid: vm_id };
-                host.vms.push(vm);
+//         if let Some(host) = hosts_guarded.get_mut(&hostid.to_string()) {
+//             if host.vms.iter().any(|vm| vm.vmid == vmid.to_string()) {
+//                 return Err((
+//                     Status::BadRequest,
+//                     Json(ErrorResponse {
+//                         error: "a vm with the specified id already exists".to_string(),
+//                     }),
+//                 ));
+//             }
 
-                return Ok(Json(Response {
-                    status: "success".to_string(),
-                    message: "vm added successfully".to_string(),
-                }));
-            } else {
-                return Err((
-                    Status::BadRequest,
-                    Json(ErrorResponse {
-                        error: "specified hostid does not exist".to_string(),
-                    }),
-                ));
-            }
-        } else {
+//             check_cpu_usage(&hosts_guarded, &hostid.to_string(), cpu)?;
+//             check_mem_usage(&hosts_guarded, &hostid.to_string(), mem)?;
+
+//             let vm = VM {
+//                 vmid: vmid.to_string(),
+//                 mem: mem,
+//                 cpu: cpu,
+//             };
+//             host.vms.push(vm);
+
+//             return Ok(Json(Response {
+//                 status: "success".to_string(),
+//                 message: format!("vmid={} was deployed at hostid={}", vmid, hostid),
+//             }));
+//         } else {
+//             return Err((
+//                 Status::BadRequest,
+//                 Json(ErrorResponse {
+//                     error: "specified hostid does not exist".to_string(),
+//                 }),
+//             ));
+//         }
+//     };
+// }
+
+fn check_cpu_usage(
+    hosts_guarded: &MutexGuard<'_, HashMap<String, SimHost>>,
+    host_id_str: &String,
+    cpu: i64,
+) -> Result<(), (Status, Json<ErrorResponse>)> {
+    let cpu_total = match hosts_guarded.get(host_id_str) {
+        Some(host) => {
+            let total_cpu_used = host.cpu;
+            Ok(total_cpu_used.to_string())
+        }
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "hostid not found",
+        ))),
+    };
+
+    let t: String = match &cpu_total {
+        Ok(usage) => usage.clone(),
+        Err(_) => "error".to_string(),
+    };
+
+    let cpu_usage = match hosts_guarded.get(host_id_str) {
+        Some(host) => {
+            let total_cpu_used: i64 = host.vms.iter().map(|vm| vm.cpu).sum();
+            Ok(total_cpu_used.to_string())
+        }
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "hostid not found",
+        ))),
+    };
+
+    let u: String = match &cpu_usage {
+        Ok(usage) => usage.clone(),
+        Err(_) => "error".to_string(),
+    };
+
+    let t_num = match t.parse::<i64>() {
+        Ok(value) => value,
+        Err(_) => {
             return Err((
                 Status::BadRequest,
                 Json(ErrorResponse {
-                    error: "vmsid is required".to_string(),
+                    error: "Failed to parse t".to_string(),
                 }),
-            ));
+            ))
         }
-    } else {
+    };
+
+    let u_num = match u.parse::<i64>() {
+        Ok(value) => value,
+        Err(_) => {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "Failed to parse u".to_string(),
+                }),
+            ))
+        }
+    };
+
+    if u_num + cpu > t_num {
         return Err((
             Status::BadRequest,
             Json(ErrorResponse {
-                error: "hostid is required".to_string(),
+                error: "too few cpus available".to_string(),
             }),
         ));
     }
+
+    Ok(())
 }
 
-#[derive(FromForm)]
-pub struct VmDeployQuery {
-    vmid: Option<String>,
-    mem: Option<String>,
-    cpu: Option<String>,
-    disk: Option<String>,
+fn check_mem_usage(
+    hosts_guarded: &MutexGuard<'_, HashMap<String, SimHost>>,
+    host_id_str: &String,
+    mem: i64,
+) -> Result<(), (Status, Json<ErrorResponse>)> {
+    let mem_total = match hosts_guarded.get(host_id_str) {
+        Some(host) => {
+            let total_mem_used = host.mem;
+            Ok(total_mem_used.to_string())
+        }
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "hostid not found",
+        ))),
+    };
+
+    let t: String = match &mem_total {
+        Ok(usage) => usage.clone(),
+        Err(_) => "error".to_string(),
+    };
+
+    let mem_usage = match hosts_guarded.get(host_id_str) {
+        Some(host) => {
+            let total_mem_used: i64 = host.vms.iter().map(|vm| vm.mem).sum();
+            Ok(total_mem_used.to_string())
+        }
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "hostid not found",
+        ))),
+    };
+
+    let u: String = match &mem_usage {
+        Ok(usage) => usage.clone(),
+        Err(_) => "error".to_string(),
+    };
+
+    let t_num = match t.parse::<i64>() {
+        Ok(value) => value,
+        Err(_) => {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "Failed to parse t".to_string(),
+                }),
+            ))
+        }
+    };
+
+    let u_num = match u.parse::<i64>() {
+        Ok(value) => value,
+        Err(_) => {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "Failed to parse u".to_string(),
+                }),
+            ))
+        }
+    };
+
+    if u_num + mem > t_num {
+        return Err((
+            Status::BadRequest,
+            Json(ErrorResponse {
+                error: "not enough memory available".to_string(),
+            }),
+        ));
+    }
+
+    Ok(())
 }
 
-#[post("/deploy?<query_params..>")]
+#[post("/placevm?<query_params..>")]
 pub async fn place_vm(
     hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
     aiorchestrator_url: &State<Arc<String>>,
-    query_params: VmDeployQuery,
+    query_params: VMDeployQuery,
 ) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
     print!("{}", &**aiorchestrator_url);
     if query_params.vmid.is_none() {
@@ -416,46 +654,43 @@ pub async fn place_vm(
             }),
         ));
     }
-    if query_params.disk.is_none() {
-        return Err((
-            Status::BadRequest,
-            Json(ErrorResponse {
-                error: "disk is not provided".to_string(),
-            }),
-        ));
-    }
+
+    let cpu: i64 = query_params
+        .cpu
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+    let mem: i64 = query_params
+        .mem
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+    let vmid: i64 = query_params
+        .vmid
+        .as_ref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
 
     let json_data = {
         let mut hosts_guarded = hosts
             .inner()
             .lock()
             .expect("failed to lock the shared simulator");
-        let vmid: i32 = query_params
-            .vmid
-            .as_ref()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or_default();
-        let cpu: f32 = query_params
-            .cpu
-            .as_ref()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or_default();
-        let memory: i32 = query_params
-            .mem
-            .as_ref()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or_default();
-        let disk_size: i32 = query_params
-            .disk
-            .as_ref()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or_default();
         let host_ids_vec: Vec<i32> = hosts_guarded
             .values()
-            .filter_map(|host| host.hostid.parse::<i32>().ok()) // use filter_map to only keep successful parses
+            .filter_map(|host| host.hostid.parse::<i32>().ok())
             .collect();
 
-        let host_ids: Vec<String> = hosts_guarded.keys().cloned().collect(); // Collect the keys
+        if host_ids_vec.is_empty() {
+            return Err((
+                Status::BadRequest,
+                Json(ErrorResponse {
+                    error: "cannot send placement request, no host is available".to_string(),
+                }),
+            ));
+        }
+
+        let host_ids: Vec<String> = hosts_guarded.keys().cloned().collect();
         for host_id in host_ids {
             if let Some(host) = hosts_guarded.get_mut(&host_id) {
                 if host.vms.iter().any(|vm| vm.vmid == vmid.to_string()) {
@@ -469,7 +704,8 @@ pub async fn place_vm(
             }
         }
 
-        generate_placement_request_json(cpu, disk_size, memory, vmid, host_ids_vec)
+        let disk_size = 0;
+        generate_placement_request_json(cpu, disk_size, mem, vmid, host_ids_vec)
     };
 
     let client = reqwest::Client::new();
@@ -515,10 +751,16 @@ pub async fn place_vm(
         for vm in &data.VMS {
             let host_id_str = vm.HOST_ID.to_string();
 
+            check_cpu_usage(&hosts_guarded, &host_id_str.clone(), cpu)?;
+            check_mem_usage(&hosts_guarded, &host_id_str.clone(), mem)?;
+
             if let Some(host) = hosts_guarded.get_mut(&host_id_str) {
                 let vm = VM {
                     vmid: vm.ID.to_string(),
+                    mem: mem,
+                    cpu: cpu,
                 };
+
                 host.vms.push(vm);
             } else {
                 return Err((

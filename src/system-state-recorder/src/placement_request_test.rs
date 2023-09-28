@@ -5,7 +5,7 @@ mod tests {
     #[tokio::test]
     async fn test_placement_request() {
         let host_ids = vec![0, 2, 3, 4];
-        let cpu = 1.0;
+        let cpu = 100;
         let disk_size = 2252;
         let memory = 786432;
         let vmid = 7;

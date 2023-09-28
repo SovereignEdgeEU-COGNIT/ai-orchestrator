@@ -3,9 +3,9 @@
 use serde::Serialize;
 #[derive(Serialize)]
 struct Capacity {
-    CPU: f32,
-    DISK_SIZE: i32,
-    MEMORY: i32,
+    CPU: i64,
+    DISK_SIZE: i64,
+    MEMORY: i64,
 }
 
 #[derive(Serialize)]
@@ -19,7 +19,7 @@ struct UserTemplate {
 struct VM {
     CAPACITY: Capacity,
     HOST_IDS: Vec<i32>,
-    ID: i32,
+    ID: i64,
     STATE: String,
     USER_TEMPLATE: UserTemplate,
 }
@@ -30,10 +30,10 @@ struct Data {
 }
 
 pub fn generate_placement_request_json(
-    cpu: f32,
-    disk_size: i32,
-    memory: i32,
-    vmid: i32,
+    cpu: i64,
+    disk_size: i64,
+    memory: i64,
+    vmid: i64,
     host_ids: Vec<i32>,
 ) -> String {
     let requirements: Vec<String> = host_ids.iter().map(|id| format!("ID=\"{}\"", id)).collect();

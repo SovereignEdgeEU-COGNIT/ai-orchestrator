@@ -21,10 +21,7 @@ pub trait Monitor: Send + Sync {
     async fn get_hosts(&self) -> Result<HashMap<String, String>, Box<dyn std::error::Error>>;
     async fn check_host_exists(&self, hostid: &String) -> Result<bool, Box<dyn std::error::Error>>;
     async fn get_vms(&self) -> Result<HashMap<String, String>, Box<dyn std::error::Error>>;
-    async fn get_host_total_mem(
-        &self,
-        hostid: &String,
-    ) -> Result<String, Box<dyn std::error::Error>>;
+    async fn get_host_total_mem(&self, hostid: &String) -> Result<String, Box<dyn Error>>;
     async fn get_host_usage_mem(
         &self,
         hostid: &String,

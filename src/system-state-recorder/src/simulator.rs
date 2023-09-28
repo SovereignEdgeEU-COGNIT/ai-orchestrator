@@ -7,11 +7,15 @@ use std::sync::Mutex;
 
 pub struct VM {
     pub vmid: String,
+    pub mem: i64,
+    pub cpu: i64,
 }
 
 pub struct Host {
     pub hostid: String,
     pub vms: Vec<VM>,
+    pub mem: i64,
+    pub cpu: i64,
 }
 
 pub struct Simulator {
@@ -25,15 +29,21 @@ pub trait SimulatorFactory {
 pub trait SimulatorHelper {
     fn add_host(&mut self, host: Host);
 
-    fn add_host_with_vms(&mut self, host_id: String, vm_ids: Vec<String>) {
-        let vms: Vec<VM> = vm_ids.into_iter().map(|vmid| VM { vmid }).collect();
+    fn add_host_with_vms(&mut self, host_id: String, vm_ids: Vec<String>, mem: i64, cpu: i64) {
+        let vms: Vec<VM> = vm_ids
+            .into_iter()
+            .map(|vmid| VM { vmid, mem, cpu })
+            .collect();
         let host = Host {
             hostid: host_id,
             vms,
+            mem,
+            cpu,
         };
         self.add_host(host);
     }
-    fn add_empty_host(&mut self, host_id: String);
+
+    fn add_empty_host(&mut self, host_id: String, mem: i64, cpu: i64);
 }
 
 impl SimulatorFactory for Simulator {
@@ -47,10 +57,12 @@ impl SimulatorHelper for Simulator {
         let mut hosts_guard = self.hosts.lock().unwrap();
         hosts_guard.insert(host.hostid.clone(), host);
     }
-    fn add_empty_host(&mut self, host_id: String) {
+    fn add_empty_host(&mut self, host_id: String, mem: i64, cpu: i64) {
         let host = Host {
             hostid: host_id,
             vms: Vec::new(),
+            mem: mem,
+            cpu: cpu,
         };
         self.add_host(host);
     }
@@ -66,10 +78,6 @@ impl Monitor for Simulator {
             .ok_or_else(|| format!("Host {} not found", hostid))?;
 
         Ok(vms_count.to_string())
-    }
-
-    async fn get_cpu_usage(&self, _hostid: &String) -> Result<String, Box<dyn Error>> {
-        Ok("200".to_string())
     }
 
     async fn get_host(&self, vmid: &String) -> Result<Option<String>, Box<dyn Error>> {
@@ -141,15 +149,53 @@ impl Monitor for Simulator {
         Ok(vms_map)
     }
 
-    async fn get_host_total_mem(&self, _hostid: &String) -> Result<String, Box<dyn Error>> {
-        Ok("8330006528".to_string())
+    async fn get_host_total_mem(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
+        let hosts_guard = self.hosts.lock().unwrap();
+        match hosts_guard.get(hostid) {
+            Some(host) => Ok(host.mem.to_string()),
+            None => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "hostid not found",
+            ))),
+        }
     }
 
-    async fn get_host_usage_mem(&self, _hostid: &String) -> Result<String, Box<dyn Error>> {
-        Ok("1610612736".to_string())
+    async fn get_host_usage_mem(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
+        let hosts_guard = self.hosts.lock().unwrap();
+        match hosts_guard.get(hostid) {
+            Some(host) => {
+                let total_mem_used: i64 = host.vms.iter().map(|vm| vm.mem).sum();
+                Ok(total_mem_used.to_string())
+            }
+            None => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "hostid not found",
+            ))),
+        }
     }
 
-    async fn get_cpu_total(&self, _hostid: &String) -> Result<String, Box<dyn Error>> {
-        Ok("1600".to_string())
+    async fn get_cpu_usage(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
+        let hosts_guard = self.hosts.lock().unwrap();
+        match hosts_guard.get(hostid) {
+            Some(host) => {
+                let total_cpu_used: i64 = host.vms.iter().map(|vm| vm.cpu).sum();
+                Ok(total_cpu_used.to_string())
+            }
+            None => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "hostid not found",
+            ))),
+        }
+    }
+
+    async fn get_cpu_total(&self, hostid: &String) -> Result<String, Box<dyn Error>> {
+        let hosts_guard = self.hosts.lock().unwrap();
+        match hosts_guard.get(hostid) {
+            Some(host) => Ok(host.cpu.to_string()),
+            None => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "hostid not found",
+            ))),
+        }
     }
 }
