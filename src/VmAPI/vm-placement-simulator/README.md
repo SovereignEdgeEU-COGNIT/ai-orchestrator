@@ -3,10 +3,10 @@ python3 main.py
 
 ## Run on docker container  
 1. Build the docker container
-   sudo docker build -t python/ai-orchestrator .
+   sudo docker build -t python/ai-orchestrator .  
 2. Start the docker container
-   sudo docker run -p 4567:4567 --rm -it python/ai-orchestrator
-3. Use the system recorder to send the request to simulator
+   sudo docker run -p 4567:4567 --rm -it python/ai-orchestrator  
+3. Use the system recorder to send the request to simulator  
 
 ## Notice
 In VM_info.py, line 47  
