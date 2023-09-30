@@ -110,6 +110,12 @@ To add a VM with id=1 to host with id=1. Allocate 1GB RAM (1073741824 bytes) and
 curl -X POST "http://localhost:8000/placevm?vmid=13&mem=1073741824&cpu=2000"
 ```
 
+## Delete a VM
+Delete VM with id 11.
+```console
+curl -X DELETE "http://localhost:8000/vms/11
+```
+
 # Testbed
 ## Accessing Grafana
 ```console

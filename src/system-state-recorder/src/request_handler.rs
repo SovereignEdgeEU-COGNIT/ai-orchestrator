@@ -686,3 +686,32 @@ pub fn is_sim(is_sim: &State<Arc<bool>>) -> Result<Json<bool>, Status> {
         false => Ok(Json(false)),
     }
 }
+
+#[delete("/vms/<vmid>")]
+pub async fn delete_vm(
+    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+    vmid: String,
+) -> Result<Json<Response>, (Status, Json<ErrorResponse>)> {
+    let mut hosts_guarded = hosts
+        .inner()
+        .lock()
+        .expect("failed to lock the shared simulator");
+
+    for (_host_id, host) in hosts_guarded.iter_mut() {
+        if let Some(vm_index) = host.vms.iter().position(|vm| vm.vmid == vmid) {
+            host.vms.remove(vm_index);
+
+            return Ok(Json(Response {
+                status: "success".to_string(),
+                message: format!("vm with id {} removed successfully", vmid),
+            }));
+        }
+    }
+
+    Err((
+        Status::NotFound,
+        Json(ErrorResponse {
+            error: format!("vm with id {} not found", vmid),
+        }),
+    ))
+}
