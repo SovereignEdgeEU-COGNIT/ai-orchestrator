@@ -123,7 +123,7 @@ pub async fn index(
     Ok(Json(mappings))
 }
 
-#[put("/set?<hostid>&<renewable>")]
+#[get("/set?<hostid>&<renewable>")]
 pub fn set_renewable(
     hostid: String,
     renewable: bool,
@@ -712,6 +712,41 @@ pub async fn delete_vm(
         Status::NotFound,
         Json(ErrorResponse {
             error: format!("vm with id {} not found", vmid),
+        }),
+    ))
+}
+
+#[derive(Serialize)]
+pub struct VMResponse {
+    hostid: String,
+    vm: VM,
+}
+
+#[get("/vms/<vmid>")]
+pub async fn get_vm(
+    hosts: &State<Arc<Mutex<HashMap<String, SimHost>>>>,
+    vmid: String,
+) -> Result<Json<VMResponse>, (Status, Json<ErrorResponse>)> {
+    let hosts_guarded = hosts
+        .inner()
+        .lock()
+        .expect("Failed to lock the shared simulator");
+
+    // Iterate over each host to find the VM with the specified vmid.
+    for (host_id, host) in hosts_guarded.iter() {
+        if let Some(vm) = host.vms.iter().find(|&v| v.vmid == vmid) {
+            return Ok(Json(VMResponse {
+                hostid: host_id.clone(),
+                vm: vm.clone(),
+            }));
+        }
+    }
+
+    // If the VM with the specified vmid is not found in any host.
+    Err((
+        Status::NotFound,
+        Json(ErrorResponse {
+            error: format!("VM with id {} not found", vmid),
         }),
     ))
 }

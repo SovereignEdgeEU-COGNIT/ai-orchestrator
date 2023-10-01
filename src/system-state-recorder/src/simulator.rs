@@ -1,16 +1,19 @@
 use crate::monitor::Monitor;
 use async_trait::async_trait;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
 use std::sync::Arc;
 use std::sync::Mutex;
 
+#[derive(Clone, Serialize)]
 pub struct VM {
     pub vmid: String,
     pub mem: i64,
     pub cpu: i64,
 }
 
+#[derive(Clone, Serialize)]
 pub struct Host {
     pub hostid: String,
     pub vms: Vec<VM>,
@@ -198,4 +201,10 @@ impl Monitor for Simulator {
             ))),
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct VMResponse {
+    hostid: String,
+    vm: VM,
 }

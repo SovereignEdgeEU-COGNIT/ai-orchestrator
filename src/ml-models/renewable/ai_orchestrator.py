@@ -33,11 +33,8 @@ async def calculate_host_load(host_details: dict) -> float:
     memory_load = host_details["usage_mem_bytes"] / host_details["total_mem_bytes"]
     cpu_load = host_details["cpu_usage"] / host_details["cpu_total"]
 
-    # Simple average of CPU and Memory load.
     load = (memory_load + cpu_load) / 2
     
-    # If the host uses renewable energy, decrease its effective load by a factor 
-    # to prioritize it in the sorting. You can adjust this factor.
     if host_details["state"]["renewable_energy"]:
         load *= 0.5
 
@@ -73,7 +70,6 @@ async def root(request: Request):
             load = await calculate_host_load(host_details)
             host_loads.append((host_id, load, host_details))
 
-
         host_priorities = []
         for host_id in hosts:
             host_details = await fetch_host_details(host_id)
@@ -88,14 +84,19 @@ async def root(request: Request):
             # Convert total_mem_bytes and usage_mem_bytes to same unit as VM (bytes -> bytes)
             host_available_memory = host_details["total_mem_bytes"] - host_details["usage_mem_bytes"]
             host_available_cpu = host_details["cpu_total"] - host_details["cpu_usage"]
+    
+            print("host_available_cpu:", host_available_cpu)
+            print("host_available_memory:", host_available_memory)
 
             vm_capacity = vm_data["CAPACITY"]
-            if (host_available_cpu >= vm_capacity["CPU"] and
-                    host_available_memory >= vm_capacity["MEMORY"]):
-                selected_host_id = host_id
-                break
+            print("required cpu:", vm_capacity["CPU"])
+            print("required mem:", vm_capacity["MEMORY"])
+            if (host_available_cpu >= vm_capacity["CPU"] and host_available_memory >= vm_capacity["MEMORY"]):
+                 selected_host_id = host_id
+                 break
 
-        if selected_host_id:
+        print("selecting hosts:", selected_host_id)
+        if selected_host_id != None:
             vms.append({'ID': vm_data['ID'], 'HOST_ID': selected_host_id})
 
     response = {"VMS": vms}

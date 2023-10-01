@@ -176,7 +176,7 @@ class Page extends Component {
     };
 
     componentDidMount() {
-        fetch('http://localhost:8000/') // Replace with your specific endpoint if needed
+        fetch('http://rocinante:8000/') // Replace with your specific endpoint if needed
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -199,7 +199,7 @@ class Page extends Component {
             });
 
         this.interval = setInterval(() => {
-            fetch('http://localhost:8000/') // Replace with your specific endpoint if needed
+            fetch('http://rocinante:8000/') // Replace with your specific endpoint if needed
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');

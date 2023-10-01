@@ -81,7 +81,7 @@ curl http://localhost:8000/hosts/2
 
 ## Set a host to use renewable energy
 ```console
-curl -X PUT "http://localhost:8000/set?hostid=2&renewable=true"
+curl http://localhost:8000/set?hostid=2&renewable=true
 ```
 
 If we now get host info, the renewable_energy attribute will be set to true.

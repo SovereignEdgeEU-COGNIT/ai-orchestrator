@@ -85,6 +85,7 @@ fn rocket() -> _ {
                     request_handler::get_host_info,
                     request_handler::add_host,
                     request_handler::place_vm,
+                    request_handler::get_vm,
                     request_handler::delete_vm,
                     request_handler::is_sim,
                 ],

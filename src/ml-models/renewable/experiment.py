@@ -38,37 +38,42 @@ def delete_vm(vmid):
     send_request("delete", endpoint)
 
 def manage_vms():
-    active_vms = deque()
+    active_vms = {} 
     vmid = 1
 
     while True:
-        # Delete VMs whose lifespan has expired
         current_time = time.time()
-        while active_vms and active_vms[0][1] <= current_time:
-            _, expiring_vmid = active_vms.popleft()
-            delete_vm(expiring_vmid)
-        
-        # Spawn new VMs if less than 20 are active
-        #while len(active_vms) < 20:
-        place_vm(vmid, 1073741824, 2000)
-        
-        lifespan = vm_lifespan()
-        expire_time = current_time + lifespan
-        active_vms.append((expire_time, vmid))
-        
-        print(f"VM {vmid} lifespan: {lifespan:.2f} seconds")
-        vmid += 1
+        print("current_time:", current_time)
+        keys_to_delete = []
+        for id, timestamp in active_vms.items():
+            print("id:", id)
+            print("timestamp:", timestamp)
+            if current_time > timestamp:
+                keys_to_delete.append(id)
+       
+        for id in keys_to_delete:
+            print("deleting vm with id=", id)
+            del active_vms[id]
+            delete_vm(id)
 
-        time.sleep(1)  # Sleep for a while before checking again
+        print("len(active_vms):", len(active_vms))
+        if len(active_vms) < 20:
+            place_vm(vmid, 1073741824, 2000)
+        
+            lifespan = vm_lifespan()
+            expire_time = current_time + lifespan
+            active_vms[vmid] = expire_time
+        
+            print(f"vm {vmid} lifespan: {lifespan:.2f} seconds")
+            vmid += 1
+
+        time.sleep(1)
 
 def main():
     for i in range(0, 9):
         add_host(i, 8073741824, 16000)
    
     manage_vms()
-    # for i in range(0, 20):
-    #     cpu_val = 2000 if i < 11 else 5000
-    #     place_vm(i, 1073741824, cpu_val)
 
 if __name__ == "__main__":
     main()
