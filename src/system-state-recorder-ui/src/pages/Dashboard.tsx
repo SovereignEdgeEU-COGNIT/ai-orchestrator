@@ -12,7 +12,7 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
             .padding(12);
 
         const root = d3.hierarchy(data)
-            .sum(d => d.value || 1)  // This ensures every node has a value.
+            .sum(d => d.value || 1)
             .sort((a, b) => b.value - a.value);
 
         const maxRadius = 60
@@ -28,18 +28,19 @@ const CirclePacking = ({ data, width, height, backgroundColor }) => {
         svg.selectAll('rect').remove();
         svg.selectAll('*').remove();
 
+        const maxSize = 100;
+        const padding = 5;
         const numCols = Math.ceil(Math.sqrt(nodes2.length - 1));
         const numRows = Math.ceil((nodes2.length - 1) / numCols);
-        const boxSize = Math.min(width / numCols, height / numRows);
-        const padding = 5;
+        const calculatedSizeX = (width - padding * (numCols - 1)) / numCols;
+        const calculatedSizeY = (height - padding * (numRows - 1)) / numRows;
+        const boxSize = Math.min(maxSize, calculatedSizeX, calculatedSizeY);
 
         const rect = svg.selectAll('rect')
             .data(nodes2)
             .enter().append('rect');
 
         rect
-            .attr('rx', 5)
-            .attr('ry', 5)
             .attr('x', (d, i) => {
                 if (!d.parent) return 0;
                 const col = (i - 1) % numCols;
@@ -127,7 +128,7 @@ const DashboardView = (props) => {
         if (placementLayout[i].state.renewable_energy) {
             items.push(
                 <td>
-                    <h4 style={{ textAlign: 'center' }}>Host: {placementLayout[i].hostid}</h4>
+                    <h4 style={{ textAlign: 'center' }}>Host: {placementLayout[i].hostid} (renewable energy)</h4>
                     <PlacementLayout backgroundColor="#68947B" data={data[i]} />
                 </td>
             );
@@ -193,7 +194,7 @@ class Page extends Component {
     };
 
     componentDidMount() {
-        fetch('http://localhost:8000/') // Replace with your specific endpoint if needed
+        fetch('http://localhost:8000/')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -216,7 +217,7 @@ class Page extends Component {
             });
 
         this.interval = setInterval(() => {
-            fetch('http://localhost:8000/') // Replace with your specific endpoint if needed
+            fetch('http://localhost:8000/')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
