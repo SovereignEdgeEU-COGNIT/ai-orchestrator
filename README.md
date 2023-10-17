@@ -4,6 +4,7 @@ AI orchestrator interacts with the cloud-edge manager in order to get the metric
 User guide:
 
 **Installation**
+
 The necessary python libraries and environment settings are listed below.
 Python libraries:
 fastapi==0.103.1
