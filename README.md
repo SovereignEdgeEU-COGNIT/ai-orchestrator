@@ -30,4 +30,5 @@ https://github.com/SovereignEdgeEU-COGNIT/ai-orchestrator.git
 cd ai-orchestrator/src/system-state-recorder/bin
 
 export ROCKET_ADDRESS=0.0.0.0
+
 ./staterec http://localhost:4567
