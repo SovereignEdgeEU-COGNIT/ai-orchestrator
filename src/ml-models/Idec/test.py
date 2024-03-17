@@ -6,7 +6,6 @@ import torch
 import numpy as np
 from MTS_utils import CreateDataset
 import matplotlib.pyplot as plt
-from MTS_utils import cluster_acc
 
 
 
@@ -19,12 +18,12 @@ Idec_model = IDEC(
         n_dec_3=500,
         n_input=560,
         n_z=10,
-        n_clusters=4,
+        n_clusters=3,
         alpha=1.0,
         pretrain_path='')
 
 
-pth_model = r"./Idec.pt"
+pth_model = r"./model/Idec_sil_92.pt"
 Idec_model.load_state_dict(torch.load(pth_model))
 
 print(Idec_model)
