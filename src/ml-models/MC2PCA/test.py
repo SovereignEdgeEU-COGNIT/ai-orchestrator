@@ -3,6 +3,8 @@ from sklearn.preprocessing import StandardScaler
 from MTS_utils import load_all_csv
 import numpy as np
 from MTS_utils import eval_by_silhouette
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 
 
@@ -37,8 +39,15 @@ def inference(data, model, ncp):
 
     feature_array = np.array(feature_list).reshape(len(data), -1)
 
-    #sil_score = eval_by_silhouette(feature_array, index_cluster)
-    #print("On test data silhouette_score is {}".format(sil_score))
+    sil_score = eval_by_silhouette(feature_array, index_cluster)
+    print("On test data silhouette_score is {}".format(sil_score))
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(feature_array)
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=index_cluster)
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    plt.title('PCA Clustering')
+    plt.show()
 
     return index_cluster
 
@@ -48,10 +57,12 @@ model_path = r"./MC2PCA_model.pkl"
 data_path = r"/Users/zhouz/Project/VM_Workload_Predictor/fastStorage/VMmonitoring"
 
 train_data, test_data = load_all_csv(data_path, seq_length=112)
+print("train: ", train_data.shape)
+print("test: ", test_data.shape)
 
 with open(model_path, 'rb') as file:
     model = pickle.load(file)
 
 test_samples = preprocess(test_data)
-results = inference(test_samples, model, ncp=4)
+results = inference(test_samples, model, ncp=1)
 print("Clustering Results: ", results)

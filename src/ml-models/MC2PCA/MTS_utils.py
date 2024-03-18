@@ -98,7 +98,7 @@ def load_all_csv(root_path, seq_length):
 
             Bd.append(new_nd_data)
         count += new_nd_data.shape[0]
-        if count > 200:
+        if count > 70000:
             break
 
     All_Series = np.vstack(Bd).astype(np.float32)
