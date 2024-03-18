@@ -1,7 +1,7 @@
 from sklearn.datasets import make_blobs
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
-from model_package import AE, IDEC
+from idec import AE, IDEC
 import torch
 import numpy as np
 from MTS_utils import CreateDataset
@@ -16,7 +16,7 @@ Idec_model = IDEC(
         n_dec_1=1000,
         n_dec_2=500,
         n_dec_3=500,
-        n_input=560,
+        n_input=784,
         n_z=10,
         n_clusters=3,
         alpha=1.0,
