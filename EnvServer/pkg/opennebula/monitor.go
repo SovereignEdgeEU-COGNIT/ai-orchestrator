@@ -3,8 +3,8 @@ package opennebula
 import (
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/client"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/client"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	log "github.com/sirupsen/logrus"
 )
 

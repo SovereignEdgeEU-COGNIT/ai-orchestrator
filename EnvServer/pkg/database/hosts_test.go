@@ -3,7 +3,7 @@ package database
 import (
 	"testing"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func TestAddHost(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, host)
 
-	host = &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
@@ -35,11 +35,11 @@ func TestHostStateMetric(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	host := &core.Host{HostID: "test_host1_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "test_host1_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
-	host = &core.Host{HostID: "test_host2_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "test_host2_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
@@ -56,7 +56,7 @@ func TestHostStateMetric(t *testing.T) {
 	err = db.RemoveHost("test_host1_id")
 	assert.Nil(t, err)
 
-	host = &core.Host{HostID: "test_host3_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "test_host3_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
@@ -75,7 +75,7 @@ func TestSetHostResources(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 1, UsageMemory: 2}
+	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 1, UsageMemory: 2, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
@@ -94,7 +94,7 @@ func TestRemoveHost(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 

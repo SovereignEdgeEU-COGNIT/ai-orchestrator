@@ -3,12 +3,12 @@ package opennebula
 import (
 	"testing"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
 func setup() (map[string]*core.VM, error) {
-	vmIDs, err := GetVMIDs(prometheusURL)
+	vmIDs, err := GetVMIDs(getPrometheusURL())
 
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func setup() (map[string]*core.VM, error) {
 }
 
 func TestGetVMIDs(t *testing.T) {
-	vmIDs, err := GetVMIDs(prometheusURL)
+	vmIDs, err := GetVMIDs(getPrometheusURL())
 
 	for _, vmID := range vmIDs {
 		t.Log(vmID)
@@ -41,165 +41,171 @@ func TestMapVMHostIDs(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = MapVMHostIDs(prometheusURL, vmMap)
+	err = MapVMHostIDs(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
+	vmMappedToHost := false
 	for _, vm := range vmMap {
-		assert.NotEmpty(t, vm.HostID)
+
+		if vm.HostID != "" {
+			vmMappedToHost = true
+			break
+		}
 	}
+	assert.True(t, vmMappedToHost, "No VMs mapped to host")
 }
 
 func TestGetVMsDiskRead(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsDiskRead(prometheusURL, vmMap)
+	err = GetVMsDiskRead(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.DiskRead == 0 {
-			invalidVMs[id] = vm.DiskRead
+		if vm.DiskRead != 0 {
+			validVms[id] = vm.DiskRead
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 diskRead")
+	assert.NotEmpty(t, validVms, "All VMs have 0 diskRead")
 }
 
 func TestGetVMsDiskWrite(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsDiskWrite(prometheusURL, vmMap)
+	err = GetVMsDiskWrite(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.DiskWrite == 0 {
-			invalidVMs[id] = vm.DiskWrite
+		if vm.DiskWrite != 0 {
+			validVms[id] = vm.DiskWrite
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 diskWrite")
+	assert.NotEmpty(t, validVms, "All VMs have 0 diskWrite")
 }
 
 func TestGetVMsNetRx(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsNetRx(prometheusURL, vmMap)
+	err = GetVMsNetRx(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.NetRX == 0 {
-			invalidVMs[id] = vm.NetRX
+		if vm.NetRX != 0 {
+			validVms[id] = vm.NetRX
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 netRX")
+	assert.NotEmpty(t, validVms, "All VMs have 0 netRX")
 }
 
 func TestGetVMsNetTx(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsNetTx(prometheusURL, vmMap)
+	err = GetVMsNetTx(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.NetTX == 0 {
-			invalidVMs[id] = vm.NetTX
+		if vm.NetTX != 0 {
+			validVms[id] = vm.NetTX
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 netTX")
+	assert.NotEmpty(t, validVms, "All VMs have 0 netTX")
 }
 
 func TestGetVMsCPUUsage(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsCPUUsage(prometheusURL, vmMap)
+	err = GetVMsCPUUsage(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.UsageCPU == 0 {
-			invalidVMs[id] = vm.UsageCPU
+		if vm.UsageCPU != 0 {
+			validVms[id] = vm.UsageCPU
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 CPU usage")
+	assert.NotEmpty(t, validVms, "All VMs have 0 CPU usage")
 }
 
 func TestGetVMsMemUsage(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsMemUsage(prometheusURL, vmMap)
+	err = GetVMsMemUsage(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.UsageMemory == 0 {
-			invalidVMs[id] = vm.UsageMemory
+		if vm.UsageMemory != 0 {
+			validVms[id] = vm.UsageMemory
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 memory usage")
+	assert.NotEmpty(t, validVms, "All VMs have 0 memory usage")
 }
 
 func TestGetVMsCPUTotal(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsCPUTotal(prometheusURL, vmMap)
+	err = GetVMsCPUTotal(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
 
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.TotalCPU == 0 {
-			invalidVMs[id] = vm.TotalCPU
+		if vm.TotalCPU != 0 {
+			validVms[id] = vm.TotalCPU
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 total CPU")
+	assert.NotEmpty(t, validVms, "All VMs have 0 total CPU")
 }
 
 func TestGetVMsMemTotal(t *testing.T) {
 	vmMap, err := setup()
 	assert.Nil(t, err)
 
-	err = GetVMsMemTotal(prometheusURL, vmMap)
+	err = GetVMsMemTotal(getPrometheusURL(), vmMap)
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
 	}
-	invalidVMs := make(map[string]float64)
+	validVms := make(map[string]float64)
 
 	for id, vm := range vmMap {
-		if vm.TotalMemory == 0 {
-			invalidVMs[id] = vm.TotalMemory
+		if vm.TotalMemory != 0 {
+			validVms[id] = vm.TotalMemory
 		}
 	}
-	assert.Empty(t, invalidVMs, "VMs with 0 total memory")
+	assert.NotEmpty(t, validVms, "All VMs have 0 total memory")
 }

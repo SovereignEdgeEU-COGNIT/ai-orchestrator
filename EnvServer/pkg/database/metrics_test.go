@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,17 +13,17 @@ func TestHostMetrics(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531200), 0), CPU: 1, Memory: 10})
+	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531200), 0), CPU: 1, Memory: 10, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
-	err = db.AddMetric("host2", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 100, Memory: 4000})
+	err = db.AddMetric("host2", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 100, Memory: 4000, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
-	err = db.AddMetric("vm1", core.VMType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 1000, Memory: 40000})
+	err = db.AddMetric("vm1", core.VMType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 1000, Memory: 40000, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
-	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 2, Memory: 20})
+	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531201), 0), CPU: 2, Memory: 20, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
-	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531202), 0), CPU: 3, Memory: 30})
+	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531202), 0), CPU: 3, Memory: 30, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
-	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531203), 0), CPU: 4, Memory: 40})
+	err = db.AddMetric("host1", core.HostType, &core.Metric{Timestamp: time.Unix(int64(1672531203), 0), CPU: 4, Memory: 40, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
 
 	metrics, err := db.GetMetrics("host1", core.HostType, time.Unix(int64(1672531100), 0), 1)

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/database"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"

@@ -136,3 +136,10 @@ Running the docker container:
 ```bash
 docker run --env-file /path/to/env-file placeholder/MLServer
 ```
+
+# Testing
+
+This is integration testing of the MLServer
+1. Start the MLServer
+2. Run test.py
+   1. Might need to tweak the address if not run locally

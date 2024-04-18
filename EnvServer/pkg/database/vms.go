@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 )
 
 func (db *Database) AddVM(host *core.VM) error {

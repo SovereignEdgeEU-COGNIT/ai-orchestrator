@@ -1,15 +1,27 @@
 package opennebula
 
 import (
+	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-const prometheusURL = "http://192.168.1.156:9090"
+//const prometheusURL = "http://192.168.1.128:9090"
+
+func getPrometheusURL() string {
+	// add the env variable PROMETHEUS_HOST
+	prometheusHost := os.Getenv("PROMETHEUS_HOST")
+
+	prometheusPortStr := os.Getenv("PROMETHEUS_PORT")
+	prometheusPort, _ := strconv.Atoi(prometheusPortStr)
+	prometheusURL := "http://" + prometheusHost + ":" + strconv.Itoa(prometheusPort)
+	return prometheusURL
+}
 
 func TestGetHostIDs(t *testing.T) {
-	hostIDs, err := GetHostIDs(prometheusURL)
+	hostIDs, err := GetHostIDs(getPrometheusURL())
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -18,7 +30,7 @@ func TestGetHostIDs(t *testing.T) {
 }
 
 func TestGetHostCPU(t *testing.T) {
-	cpuLoad, err := GetHostCPU(prometheusURL, "4")
+	cpuLoad, err := GetHostCPU(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -27,7 +39,7 @@ func TestGetHostCPU(t *testing.T) {
 }
 
 func TestGetHostBusyCPU(t *testing.T) {
-	cpuLoad, err := GetHostCPUBusy(prometheusURL, "4")
+	cpuLoad, err := GetHostCPUBusy(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -36,7 +48,7 @@ func TestGetHostBusyCPU(t *testing.T) {
 }
 
 func TestGetHostUsedMem(t *testing.T) {
-	usedMem, err := GetHostUsedMem(prometheusURL, "4")
+	usedMem, err := GetHostUsedMem(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -45,7 +57,7 @@ func TestGetHostUsedMem(t *testing.T) {
 }
 
 func TestGetHostAvailMem(t *testing.T) {
-	availMem, err := GetHostAvailMem(prometheusURL, "4")
+	availMem, err := GetHostAvailMem(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -54,7 +66,7 @@ func TestGetHostAvailMem(t *testing.T) {
 }
 
 func TestGetHostNetTX(t *testing.T) {
-	netTX, err := GetHostNetTX(prometheusURL, "4")
+	netTX, err := GetHostNetTX(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +75,7 @@ func TestGetHostNetTX(t *testing.T) {
 }
 
 func TestGetHostNetRX(t *testing.T) {
-	netRX, err := GetHostNetRX(prometheusURL, "4")
+	netRX, err := GetHostNetRX(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -72,7 +84,7 @@ func TestGetHostNetRX(t *testing.T) {
 }
 
 func TestGetHostDiskRead(t *testing.T) {
-	diskRead, err := GetHostDiskRead(prometheusURL, "4")
+	diskRead, err := GetHostDiskRead(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)
@@ -81,7 +93,7 @@ func TestGetHostDiskRead(t *testing.T) {
 }
 
 func TestGetHostDiskWrite(t *testing.T) {
-	diskWrite, err := GetHostDiskWrite(prometheusURL, "4")
+	diskWrite, err := GetHostDiskWrite(getPrometheusURL(), "7")
 	assert.Nil(t, err)
 	if err != nil {
 		t.Error(err)

@@ -4,14 +4,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAddHostMetrics(t *testing.T) {
 	client, server, done := prepareTests(t)
 
-	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 0, UsageMemory: 0}
+	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 0, UsageMemory: 0, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err := client.AddHost(host)
 	assert.Nil(t, err)
 
@@ -21,7 +21,7 @@ func TestAddHostMetrics(t *testing.T) {
 	assert.Equal(t, host.UsageMemory, float64(0))
 
 	now := time.Now()
-	err = client.AddMetric("host1", core.HostType, &core.Metric{Timestamp: now, CPU: 1, Memory: 10})
+	err = client.AddMetric("host1", core.HostType, &core.Metric{Timestamp: now, CPU: 1, Memory: 10, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
 
 	oneSecondAgo := now.Add(-time.Second)
@@ -43,7 +43,7 @@ func TestAddHostMetrics(t *testing.T) {
 func TestAddVMMetrics(t *testing.T) {
 	client, server, done := prepareTests(t)
 
-	vm := &core.VM{VMID: "vm1", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 0, UsageMemory: 0}
+	vm := &core.VM{VMID: "vm1", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 0, UsageMemory: 0, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err := client.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -53,7 +53,7 @@ func TestAddVMMetrics(t *testing.T) {
 	assert.Equal(t, vm.UsageMemory, float64(0))
 
 	now := time.Now()
-	err = client.AddMetric("vm1", core.VMType, &core.Metric{Timestamp: now, CPU: 1, Memory: 10})
+	err = client.AddMetric("vm1", core.VMType, &core.Metric{Timestamp: now, CPU: 1, Memory: 10, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5})
 	assert.Nil(t, err)
 
 	oneSecondAgo := now.Add(-time.Second)

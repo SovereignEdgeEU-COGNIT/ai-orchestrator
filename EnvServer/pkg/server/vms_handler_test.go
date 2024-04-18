@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestAddVM(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, vm)
 
-	vm = &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = client.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -34,7 +34,7 @@ func TestGetVM(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, vm)
 
-	vm = &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = client.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -54,11 +54,11 @@ func TestGetVMs(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, vms)
 
-	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = client.AddVM(vm)
 	assert.Nil(t, err)
 
-	vm = &core.VM{VMID: "vm2", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "vm2", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = client.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -74,7 +74,7 @@ func TestGetVMs(t *testing.T) {
 func TestRemoveVM(t *testing.T) {
 	client, server, done := prepareTests(t)
 
-	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err := client.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -97,14 +97,14 @@ func TestRemoveVM(t *testing.T) {
 func TestBind(t *testing.T) {
 	client, server, done := prepareTests(t)
 
-	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err := client.AddHost(host)
 	assert.Nil(t, err)
 
 	hostFromDB, err := client.GetHost("host1")
 	assert.Nil(t, err)
 
-	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "vm1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = client.AddVM(vm)
 	assert.Nil(t, err)
 

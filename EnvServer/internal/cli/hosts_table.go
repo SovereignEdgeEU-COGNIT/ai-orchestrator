@@ -3,8 +3,8 @@ package cli
 import (
 	"strconv"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/internal/table"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/internal/table"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/muesli/termenv"
 )
 

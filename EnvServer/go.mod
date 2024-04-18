@@ -1,4 +1,4 @@
-module github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env
+module github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer
 
 go 1.20
 

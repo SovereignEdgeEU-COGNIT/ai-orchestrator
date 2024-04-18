@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestAddHost(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, host)
 
-	host = &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = client.AddHost(host)
 	assert.Nil(t, err)
 
@@ -34,7 +34,7 @@ func TestGetHost(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, host)
 
-	host = &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = client.AddHost(host)
 	assert.Nil(t, err)
 
@@ -54,11 +54,11 @@ func TestGetHosts(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, hosts)
 
-	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = client.AddHost(host)
 	assert.Nil(t, err)
 
-	host = &core.Host{HostID: "host2", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host = &core.Host{HostID: "host2", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err = client.AddHost(host)
 	assert.Nil(t, err)
 
@@ -74,7 +74,7 @@ func TestGetHosts(t *testing.T) {
 func TestRemoveHost(t *testing.T) {
 	client, server, done := prepareTests(t)
 
-	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "host1", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4, EnergyUsage: 5}
 	err := client.AddHost(host)
 	assert.Nil(t, err)
 

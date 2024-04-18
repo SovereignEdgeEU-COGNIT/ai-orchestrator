@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/build"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/build"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )

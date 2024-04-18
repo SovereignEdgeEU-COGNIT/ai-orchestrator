@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 )
 
 func (db *Database) AddMetric(id string, metricType int, metric *core.Metric) error {

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/emulator"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/emulator"
 	"github.com/spf13/cobra"
 )
 

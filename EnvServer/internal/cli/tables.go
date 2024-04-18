@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/internal/table"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/internal/table"
 	goprettytable "github.com/jedib0t/go-pretty/v6/table"
 )
 

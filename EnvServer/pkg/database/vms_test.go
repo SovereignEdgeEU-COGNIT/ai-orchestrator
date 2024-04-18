@@ -3,7 +3,7 @@ package database
 import (
 	"testing"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func TestAddVM(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, vm)
 
-	vm = &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -35,11 +35,11 @@ func TestVMStateMetric(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	vm := &core.VM{VMID: "test_vm1_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "test_vm1_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
-	vm = &core.VM{VMID: "test_vm2_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "test_vm2_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -56,7 +56,7 @@ func TestVMStateMetric(t *testing.T) {
 	err = db.RemoveVM("test_vm1_id")
 	assert.Nil(t, err)
 
-	vm = &core.VM{VMID: "test_vm3_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm = &core.VM{VMID: "test_vm3_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -75,7 +75,7 @@ func TestSetVMResources(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	vm := &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -94,7 +94,7 @@ func TestRemoveVM(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	vm := &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "test_vm_id", Deployed: true, HostID: "test_host_id", HostStateID: 0, TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 
@@ -115,11 +115,11 @@ func TestBind(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
-	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	host := &core.Host{HostID: "test_host_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddHost(host)
 	assert.Nil(t, err)
 
-	vm := &core.VM{VMID: "test_vm_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552}
+	vm := &core.VM{VMID: "test_vm_id", TotalCPU: 1600, TotalMemory: 16785711104, UsageCPU: 800, UsageMemory: 8385855552, DiskRead: 1, DiskWrite: 2, NetRX: 3, NetTX: 4}
 	err = db.AddVM(vm)
 	assert.Nil(t, err)
 

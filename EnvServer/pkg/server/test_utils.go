@@ -3,9 +3,10 @@ package server
 import (
 	"io"
 	"testing"
+	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/client"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/database"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/client"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/database"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -32,6 +33,8 @@ func prepareTests(t *testing.T) (*client.EnvClient, *EnvServer, chan bool) {
 		server.ServeForever()
 		done <- true
 	}()
+
+	time.Sleep(1 * time.Second) //Lazy method of waiting for server to start
 
 	log.SetReportCaller(true)
 

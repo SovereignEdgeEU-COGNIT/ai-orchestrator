@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/core"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/core"
 )
 
 func (db *Database) AddHost(host *core.Host) error {
@@ -16,6 +16,7 @@ func (db *Database) AddHost(host *core.Host) error {
 
 	hosts, err := db.GetHosts()
 	if err != nil {
+		db.hostsMutex.Unlock()
 		return err
 	}
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/internal/cli"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/build"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/internal/cli"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/build"
 )
 
 var (

@@ -4,9 +4,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/database"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/opennebula"
-	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator-env/pkg/server"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/database"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/opennebula"
+	"github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/EnvServer/pkg/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
