@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: ${ENVSERVER_DB_USER}
+      POSTGRES_PASSWORD: ${ENVSERVER_DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+      TZ: ${TZ}
+      TS_TUNE_MAX_CONNS: "1000"
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+  
+  envserver:
+    image: johan/envserver
+    depends_on: 
+      - timescaledb
+    environment:
+      ENVSERVER_TLS: "false"
+      ENVSERVER_PORT: ${ENVSERVER_PORT}
+      ENVSERVER_DB_HOST: timescaledb 
+      ENVSERVER_DB_PORT: 5432
+      ENVSERVER_DB_USER:  ${ENVSERVER_DB_USER} 
+      ENVSERVER_DB_PASSWORD:  ${ENVSERVER_DB_PASSWORD}
+      ENVSERVER_VERBOSE: "true"  
+      TZ: ${TZ}
+    ports:
+      - "${ENVSERVER_PORT}:${ENVSERVER_PORT}"
+    command: sh -c "envcli server start --initdb"
+  
+  emulator_connector:
+    image: johan/envserver
+    depends_on: 
+      - envserver
+    environment:
+      ENVSERVER_TLS: "false"
+      ENVSERVER_HOST: envserver
+      ENVSERVER_PORT: ${ENVSERVER_PORT}
+      CTRLPLANE_HOST: ${CTRLPLANE_HOST}
+      CTRLPLANE_PORT: ${CTRLPLANE_PORT}
+      PROMETHEUS_HOST: ${PROMETHEUS_HOST}
+      PROMETHEUS_PORT: ${PROMETHEUS_PORT}
+      TZ: ${TZ}
+    command: sh -c "envcli connectors emulator start"
+    
+volumes:
+  timescaledb_data:

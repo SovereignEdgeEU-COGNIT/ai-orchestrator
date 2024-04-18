@@ -1,0 +1,9 @@
+Flask
+numpy
+scikit-learn
+matplotlib
+pandas
+torch  # This is for PyTorch. Use "torch" instead of "pytorch" in requirements.txt
+psycopg2-binary  # Use psycopg2-binary for easier installation, unless you have specific reasons to compile from source
+
+pyone

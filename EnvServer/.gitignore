@@ -1,0 +1,6 @@
+.DS_Store
+bin
+*.csv
+main
+main.exe
+.env

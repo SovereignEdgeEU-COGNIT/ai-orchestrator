@@ -1,0 +1,8 @@
+datasets/*
+**/.env
+*.pyc
+ml-models/Idec/VMmonitoring/*
+EnvServer/bin
+EnvServer/**/*.csv
+**/main
+**/main.exe

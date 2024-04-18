@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: ${ENVSERVER_DB_USER}
+      POSTGRES_PASSWORD: ${ENVSERVER_DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+      TZ: ${TZ}
+      TS_TUNE_MAX_CONNS: "1000"
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+  
+  envserver:
+    image: simonbonr/envserver
+    depends_on: 
+      - timescaledb
+    environment:
+      ENVSERVER_TLS: "false"
+      ENVSERVER_PORT: ${ENVSERVER_PORT}
+      ENVSERVER_DB_HOST: timescaledb 
+      ENVSERVER_DB_PORT: 5432
+      ENVSERVER_DB_USER: ${ENVSERVER_DB_USER} 
+      ENVSERVER_DB_PASSWORD: ${ENVSERVER_DB_PASSWORD}
+      ENVSERVER_VERBOSE: ${ENVSERVER_VERBOSE}
+      PROMETHEUS_HOST: ${PROMETHEUS_HOST} 
+      PROMETHEUS_PORT: ${PROMETHEUS_PORT}
+      ML_HOST: ${ML_HOST}
+      ML_PORT: ${ML_PORT}
+      ML_INSECURE: ${ML_INSECURE}
+      TZ: ${TZ}
+    ports:
+      - "${ENVSERVER_PORT}:${ENVSERVER_PORT}"
+      - "4567:4567"
+    command: sh -c "envcli server start --initdb --one"
+
+  mlserver:
+    image: simonbonr/mlserver
+    depends_on: 
+      - timescaledb
+      - envserver
+    environment:
+      ML_MODEL_PORT: ${ML_PORT} 
+      ONED_ADDR: ${ONED_ADDR}
+      ONED_PASS: ${ONED_PASS}
+      ENVSERVER_DB_HOST: timescaledb 
+      ENVSERVER_DB_PORT: 5432
+      ENVSERVER_DB_USER: ${ENVSERVER_DB_USER} 
+      ENVSERVER_DB_PASSWORD: ${ENVSERVER_DB_PASSWORD}
+      TZ: ${TZ}
+    ports:
+      - "${ML_PORT}:${ML_PORT}"
+    command: sh -c "python3 /MLServer/server.py"
+    
+volumes:
+  timescaledb_data:
