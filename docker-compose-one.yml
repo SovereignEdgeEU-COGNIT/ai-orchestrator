@@ -19,7 +19,7 @@ services:
     depends_on: 
       - timescaledb
     environment:
-      ENVSERVER_TLS: "false"
+      ENVSERVER_TLS: ${ENVSERVER_TLS}
       ENVSERVER_PORT: ${ENVSERVER_PORT}
       ENVSERVER_DB_HOST: timescaledb 
       ENVSERVER_DB_PORT: ${ENVSERVER_DB_PORT}
