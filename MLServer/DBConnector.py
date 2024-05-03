@@ -56,6 +56,7 @@ class Metric:
 
 class DBClient:
     def __init__(self, minconn: int, maxconn: int):
+        print(f"Connecting to DB at {DB_HOST}:{DB_PORT}...")
         self.connection_pool = pool.ThreadedConnectionPool(
             minconn, 
             maxconn,

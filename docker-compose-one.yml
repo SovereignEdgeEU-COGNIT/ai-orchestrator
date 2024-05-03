@@ -10,7 +10,7 @@ services:
       TZ: ${TZ}
       TS_TUNE_MAX_CONNS: "1000"
     ports:
-      - "5432:5432"
+      - "${ENVSERVER_DB_PORT}:${ENVSERVER_DB_PORT}"
     volumes:
       - timescaledb_data:/var/lib/postgresql/data
   
@@ -22,7 +22,7 @@ services:
       ENVSERVER_TLS: "false"
       ENVSERVER_PORT: ${ENVSERVER_PORT}
       ENVSERVER_DB_HOST: timescaledb 
-      ENVSERVER_DB_PORT: 5432
+      ENVSERVER_DB_PORT: ${ENVSERVER_DB_PORT}
       ENVSERVER_DB_USER: ${ENVSERVER_DB_USER} 
       ENVSERVER_DB_PASSWORD: ${ENVSERVER_DB_PASSWORD}
       ENVSERVER_VERBOSE: ${ENVSERVER_VERBOSE}
@@ -47,7 +47,7 @@ services:
       ONED_ADDR: ${ONED_ADDR}
       ONED_PASS: ${ONED_PASS}
       ENVSERVER_DB_HOST: timescaledb 
-      ENVSERVER_DB_PORT: 5432
+      ENVSERVER_DB_PORT: ${ENVSERVER_DB_PORT}
       ENVSERVER_DB_USER: ${ENVSERVER_DB_USER} 
       ENVSERVER_DB_PASSWORD: ${ENVSERVER_DB_PASSWORD}
       TZ: ${TZ}
