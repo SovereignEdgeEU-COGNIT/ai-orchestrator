@@ -27,17 +27,3 @@ class LSTM(nn.Module):
         #print("Check out_1 shape: ", out_1.size())
         return out_1
 
-class LSTMAttention(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size):
-        super(LSTMAttention, self).__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.attention = nn.Linear(hidden_size, 1)
-        self.fc = nn.Linear(hidden_size, output_size)
-    
-    def forward(self, x):
-        output, _ = self.lstm(x)
-        attention_weights = self.attention(output).squeeze(-1)  # 计算注意力权重
-        attention_scores = torch.softmax(attention_weights, dim=1)  # 计算注意力分数
-        context_vector = torch.sum(output * attention_scores.unsqueeze(-1), dim=1)  # 计算上下文向量
-        output = self.fc(context_vector)
-        return output
