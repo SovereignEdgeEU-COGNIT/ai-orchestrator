@@ -34,7 +34,7 @@ class TemporalBlock(nn.Module):
         super(TemporalBlock, self).__init__()
         self.conv1 = weight_norm(nn.Conv1d(n_inputs, n_outputs, kernel_size,
                                            stride=stride, padding=padding, dilation=dilation))
-        # 经过conv1，输出的size其实是(Batch, input_channel, seq_len + padding)
+        # output size is (Batch, input_channel, seq_len + padding)
         self.chomp1 = Chomp1d(padding)  # 
         self.relu1 = nn.ReLU()
         self.dropout1 = nn.Dropout(dropout)
@@ -53,7 +53,7 @@ class TemporalBlock(nn.Module):
 
     def init_weights(self):
         """
-        参数初始化
+        parameter initialization
 
         :return:
         """
