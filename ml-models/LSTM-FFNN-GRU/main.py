@@ -10,7 +10,6 @@ from data import load_data, scale_data, create_sequences
 
 from myLSTM import LSTMModel, train_lstm_model  # Import LSTM
 from myFFNN import FFNNModel, train_ffnn_model  # Import FFNN
-from myTCN import TCN  # Import TCN
 from myGRU import GRUModel, train_gru_model  # Import GRU
 
 import random
