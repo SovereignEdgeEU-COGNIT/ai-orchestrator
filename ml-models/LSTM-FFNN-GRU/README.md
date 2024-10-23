@@ -6,7 +6,7 @@ To test the models, follow these steps:
     pip install -r requirements.txt
     ```
 
-2. Navigate to the directory where your `test.py` script is located.
+2. Navigate to the directory where the `test.py` script is located.
 
 3. Run the test script using the following command:
     ```bash
