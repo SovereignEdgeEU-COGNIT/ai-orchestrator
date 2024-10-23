@@ -53,3 +53,4 @@ export ML_INSECURE="false"              # TLS to MLServer
 #### ML Models
 [IDEC testing](https://github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/blob/main/ml-models/Idec/README.md)
 [MC2PCA testing](https://github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/blob/main/ml-models/MC2PCA/README.md)
+[LSTM-FFNN-GRU testing](https://github.com/SovereignEdgeEU-COGNIT/ai-orchestrator/blob/main/ml-models/LSTM-FFNN-GRU/README.md)
