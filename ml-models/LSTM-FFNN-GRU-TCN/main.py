@@ -11,6 +11,7 @@ from data import load_data, scale_data, create_sequences
 from myLSTM import LSTMModel, train_lstm_model  # Import LSTM
 from myFFNN import FFNNModel, train_ffnn_model  # Import FFNN
 from myGRU import GRUModel, train_gru_model  # Import GRU
+from myTCN import TCNModel, train_tcn_model  # Import TCN
 
 import random
 import argparse # Import argparse for command line arguments
@@ -22,7 +23,7 @@ from rmse import calculate_rmse
 
 
 # Hyperparameters
-model_type = 'FFNN'  # Change this to 'LSTM', 'FFNN', or 'TCN'
+model_type = 'TCN'  # Change this to 'LSTM', 'FFNN', 'GRU', or 'TCN'
 input_size = 4  
 hidden_size = 64
 num_layers = 2  # Only used for LSTM
@@ -149,6 +150,23 @@ with mlflow.start_run(run_name=f"{model_type} Model Run"):
         model_load_path = os.path.join(models_dir, 'gru_model.pth')
         model.load_state_dict(torch.load(model_load_path))
         print(f'Model loaded from {model_load_path}')
+    elif model_type == 'TCN':
+        print("Training TCN model...")
+        model = TCNModel(input_size, output_size, tcn_channels, kernel_size=2, dropout=0.2)
+        criterion = torch.nn.MSELoss()
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        train_tcn_model(model, train_loader, criterion, optimizer, num_epochs)
+
+        # Save the TCN model
+        model_save_path = os.path.join(models_dir, 'tcn_model.pth')
+        torch.save(model.state_dict(), model_save_path)
+        print(f'Model saved to {model_save_path}')
+        
+        # print("Initializing TCN model...")
+        # model = TCNModel(input_size, output_size, tcn_channels, kernel_size=2, dropout=0.2)
+        # model_load_path = os.path.join(models_dir, 'tcn_model.pth')
+        # model.load_state_dict(torch.load(model_load_path))
+        # print(f'Model loaded from {model_load_path}')
 
 
 
