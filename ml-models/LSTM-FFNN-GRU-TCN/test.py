@@ -12,7 +12,7 @@ from rmse import calculate_rmse
 import random
 
 # Function to load the model based on model type
-def load_model(model_type, input_size, hidden_size, output_size, num_layers, sequence_length):
+def load_model(model_type, input_size, hidden_size, output_size, num_layers, sequence_length, tcn_channels):
     models_dir = 'models'
     model = None
 
@@ -50,6 +50,7 @@ def main(model_type):
     output_size = 4  # Predicting the next 4 features
     sequence_length = 99
     batch_size = 64
+    tcn_channels = [64, 64, 64]  # Channels for TCN layers
 
     # Load the test set from .npy files
     save_dir = 'TestSet'
@@ -65,7 +66,7 @@ def main(model_type):
     data_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
     # Load the model
-    model = load_model(model_type, input_size, hidden_size, output_size, num_layers, sequence_length)
+    model = load_model(model_type, input_size, hidden_size, output_size, num_layers, sequence_length, tcn_channels)
     model.eval()  # Set the model to evaluation mode
 
     predictions = []
@@ -141,7 +142,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     model_type_arg = sys.argv[1]
-    valid_model_types = ['LSTM', 'FFNN', 'GRU']
+    valid_model_types = ['LSTM', 'FFNN', 'GRU', 'TCN']
 
     if model_type_arg not in valid_model_types:
         print(f"Invalid model type. Choose from: {', '.join(valid_model_types)}")
