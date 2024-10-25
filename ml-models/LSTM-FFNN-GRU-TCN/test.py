@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from myLSTM import LSTMModel
 from myFFNN import FFNNModel
 from myGRU import GRUModel
+from myTCN import TCNModel
 from rmse import calculate_rmse
 import random
 
@@ -26,6 +27,11 @@ def load_model(model_type, input_size, hidden_size, output_size, num_layers, seq
     elif model_type == 'GRU':
         model = GRUModel(input_size, hidden_size, num_layers, output_size)
         model_load_path = os.path.join(models_dir, 'gru_model.pth')
+
+    elif model_type == 'TCN':
+        model = TCNModel(input_size, output_size, tcn_channels)
+        model_load_path = os.path.join(models_dir, 'tcn_model.pth')
+    
 
     # Load the model's state dictionary
     if model is not None and os.path.exists(model_load_path):
