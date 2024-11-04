@@ -36,3 +36,51 @@ The univariate test evaluates models on a single metric (e.g., CPU, Memory, Disk
 3. The script will load the specified model and evaluate it using the univariate test dataset for the specified metric.
 
 4. The results, will be shown on the screen as images.
+
+# Model Integration
+# Single Sequence Integration with FFNNModel_uni
+
+The `FFNNModel_uni` model can be loaded and used to make predictions on a single univariate time series sequence. This guide provides the steps to integrate and make predictions using `FFNNModel_uni`.
+
+## Steps to Use FFNNModel_uni for Single Sequence Prediction
+
+### 1. Load the Model
+To begin, load the `FFNNModel_uni` model with the appropriate parameters.
+
+```python
+import torch
+from myFFNN import FFNNModel_uni  # Adjust import based on your file structure
+
+# Model parameters
+sequence_length = 99
+hidden_size = 64
+output_size = 1
+
+# Initialize and load the model
+model = FFNNModel_uni(sequence_length, hidden_size, output_size)
+model.load_state_dict(torch.load('models_uni/ffnn_uni_model_<metric>.pth'))
+model.eval()  # Set the model to evaluation mode
+```
+
+### 2. Prepare the Input Sequence
+Ensure the input sequence has the shape `(sequence_length, 1)`, where `sequence_length` is set to 99. The input should be a single sequence to be fed into the model.
+
+```python
+import numpy as np
+
+# Example: load or create a single sequence of shape (99, 1)
+X_single = np.load('TestSet_uni/X_test_<metric>.npy')[0]  # Select the first test sequence
+X_single_tensor = torch.from_numpy(X_single).float().view(sequence_length, 1)  # Shape: (99, 1)
+
+```
+### 3. Make a Prediction
+Pass the prepared sequence through the model to obtain a prediction.
+
+```python
+with torch.no_grad():
+    prediction = model(X_single_tensor).item()  # Get single scalar output
+print("Prediction:", prediction)
+```
+### Notes
+- Replace `<metric>` with the specific metric name, such as `cpu` or `memory`.
+- This approach provides a straightforward way to load a trained `FFNNModel_uni`, pass a single sequence, and retrieve the prediction output.
