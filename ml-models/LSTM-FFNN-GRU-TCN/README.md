@@ -49,7 +49,7 @@ To begin, load the `FFNNModel_uni` model with the appropriate parameters.
 
 ```python
 import torch
-from myFFNN import FFNNModel_uni  # Adjust import based on your file structure
+from myFFNN import FFNNModel_uni  
 
 # Model parameters
 sequence_length = 99
@@ -82,5 +82,5 @@ with torch.no_grad():
 print("Prediction:", prediction)
 ```
 ### Notes
-- Replace `<metric>` with the specific metric name, such as `cpu` or `memory`.
+- Replace `<metric>` with the specific metric name, such as `CPU` or `Memory`.
 - This approach provides a straightforward way to load a trained `FFNNModel_uni`, pass a single sequence, and retrieve the prediction output.
