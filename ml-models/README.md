@@ -15,5 +15,6 @@ These models form the basis of the AI-enabled orchestrator and are intended for 
 
 ## Test and Deployment
 [Idec testing](https://github.com/Javad-Forough/ai-orchestrator/blob/model-repository-1.0/ml-models/Idec/README.md)
+
 [MC2PCA testing](https://github.com/Javad-Forough/ai-orchestrator/blob/model-repository-1.0/ml-models/MC2PCA/README.md)
 
