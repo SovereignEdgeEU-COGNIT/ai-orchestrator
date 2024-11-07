@@ -14,11 +14,6 @@ These models form the basis of the AI-enabled orchestrator and are intended for 
 
 
 ## Test and Deployment
-To test and deploy the models, run the following command:
-```bash
-python test.py
-```
-torch model accepts torch tensor as input
-
-Requires modifying row 128 in MTS_utils.py to point towards the dataset, e.g. https://www.kaggle.com/datasets/gauravdhamane/gwa-bitbrains (assuming format of bitbrains dataset)
+[Idec testing](https://github.com/Javad-Forough/ai-orchestrator/blob/model-repository-1.0/ml-models/Idec/README.md)
+[MC2PCA testing](https://github.com/Javad-Forough/ai-orchestrator/blob/model-repository-1.0/ml-models/MC2PCA/README.md)
 
