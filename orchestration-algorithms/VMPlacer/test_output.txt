@@ -1,0 +1,215 @@
+Running VM Optimizer test cases...
+
+================================================================================
+Test Case: Basic Allocation
+================================================================================
+
+Input VMs:
+VM 1: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2}
+VM 2: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+Host 2: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+
+Allocation Results:
+VM 2 → Host 1
+VM 1 → Host 1
+
+Summary:
+- Total VMs: 2
+- Successfully allocated: 2
+- Failed to allocate: 0
+
+
+
+================================================================================
+Test Case: Resource Intensive VMs
+================================================================================
+
+Input VMs:
+VM 1: Memory=2GB, CPU=6.00, State=VMState.PENDING, Allowed Hosts={1, 2}
+VM 2: Memory=6GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+Host 2: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+
+Allocation Results:
+VM 1 → Host 1
+VM 2 → Host 2
+
+Summary:
+- Total VMs: 2
+- Successfully allocated: 2
+- Failed to allocate: 0
+
+
+
+================================================================================
+Test Case: Full Host Capacity
+================================================================================
+
+Input VMs:
+VM 1: Memory=7GB, CPU=7.00, State=VMState.PENDING, Allowed Hosts={1}
+VM 2: Memory=7GB, CPU=7.00, State=VMState.PENDING, Allowed Hosts={1}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 7GB), CPU=8.00 (Used: 7.00)
+
+Allocation Results:
+VM 1 → No suitable host found
+VM 2 → No suitable host found
+
+Summary:
+- Total VMs: 2
+- Successfully allocated: 0
+- Failed to allocate: 2
+
+
+
+================================================================================
+Test Case: Specific Host Requirements
+================================================================================
+
+Input VMs:
+VM 1: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1}
+VM 2: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={2}
+VM 3: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+Host 2: Memory=8GB (Used: 4GB), CPU=8.00 (Used: 4.00)
+
+Allocation Results:
+VM 1 → Host 1
+VM 2 → Host 2
+VM 3 → Host 1
+
+Summary:
+- Total VMs: 3
+- Successfully allocated: 3
+- Failed to allocate: 0
+
+
+
+================================================================================
+Test Case: Missing Host IDs - FAILED
+================================================================================
+
+Input VMs:
+VM 1: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts=Not specified
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+
+Error Type: ValueError
+Error Message: VM 1 does not have host_ids specified. Each VM must explicitly specify which hosts it can be placed on.
+
+
+
+================================================================================
+Test Case: Large Scale Allocation
+================================================================================
+
+Input VMs:
+VM 1: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 2: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 3: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 4: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 5: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 6: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 7: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 8: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 9: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+VM 10: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3, 4, 5}
+
+Available Hosts:
+Host 1: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+Host 2: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+Host 3: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+Host 4: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+Host 5: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+
+Allocation Results:
+VM 1 → Host 1
+VM 3 → Host 1
+VM 5 → Host 1
+VM 7 → Host 2
+VM 9 → Host 2
+VM 2 → Host 2
+VM 4 → Host 2
+VM 6 → Host 3
+VM 8 → Host 3
+VM 10 → Host 3
+
+Summary:
+- Total VMs: 10
+- Successfully allocated: 10
+- Failed to allocate: 0
+
+
+
+================================================================================
+Test Case: Invalid Host IDs - FAILED
+================================================================================
+
+Input VMs:
+VM 1: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={99, 100}
+VM 2: Memory=2GB, CPU=2.00, State=VMState.PENDING, Allowed Hosts={1, 99}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+
+Error Type: KeyError
+Error Message: 'VM 1 specifies non-existent host IDs: {99, 100}. Valid host IDs are: {1}'
+
+
+
+================================================================================
+Test Case: Heterogeneous Hosts
+================================================================================
+
+Input VMs:
+VM 1: Memory=4GB, CPU=4.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3}
+VM 2: Memory=8GB, CPU=8.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3}
+VM 3: Memory=16GB, CPU=16.00, State=VMState.PENDING, Allowed Hosts={1, 2, 3}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+Host 2: Memory=16GB (Used: 0GB), CPU=16.00 (Used: 0.00)
+Host 3: Memory=32GB (Used: 0GB), CPU=32.00 (Used: 0.00)
+
+Allocation Results:
+VM 3 → Host 3
+VM 2 → Host 3
+VM 1 → Host 1
+
+Summary:
+- Total VMs: 3
+- Successfully allocated: 3
+- Failed to allocate: 0
+
+
+
+================================================================================
+Test Case: Resource Threshold Edge Cases
+================================================================================
+
+Input VMs:
+VM 1: Memory=6GB, CPU=6.00, State=VMState.PENDING, Allowed Hosts={1}
+VM 2: Memory=7GB, CPU=7.00, State=VMState.PENDING, Allowed Hosts={1}
+
+Available Hosts:
+Host 1: Memory=8GB (Used: 0GB), CPU=8.00 (Used: 0.00)
+
+Allocation Results:
+VM 2 → No suitable host found
+VM 1 → Host 1
+
+Summary:
+- Total VMs: 2
+- Successfully allocated: 1
+- Failed to allocate: 1
+
+
