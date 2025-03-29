@@ -54,22 +54,21 @@ class VMEstimator(ResourceEstimatorInterface):
 
         # Calculate required VMs for waiting functions based on their execution times
         required_vms_for_waiting = len(waiting_functions)
+        
+        # Total required VMs (incoming + waiting)
+        total_required_vms = required_vms_for_requests + required_vms_for_waiting
 
         # Estimate the number of busy VMs that will soon be free
         soon_free_vms = sum(1 for time in busy_vms if time <= self.soon_free_threshold)
 
-        # Total required VMs (incoming + waiting)
-        total_required_vms = required_vms_for_requests + required_vms_for_waiting
 
         # Subtract currently available resources (idle + soon-to-be-free VMs)
         current_available_vms = idle_vms + soon_free_vms
 
-        # Adjust the total number of active VMs to match demand
-        optimal_vms = max(0, total_required_vms - current_available_vms)
-
-        # Ensure we scale down if too many VMs are currently active
-        if optimal_vms < current_available_vms:
+        if total_required_vms > current_available_vms:
             optimal_vms = total_required_vms + (len(busy_vms) - soon_free_vms)
+        else:
+            optimal_vms = total_required_vms + len(busy_vms)
 
         return optimal_vms
     
