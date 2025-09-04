@@ -1,0 +1,74 @@
+import sys
+import pika
+import logging
+
+from scaler.one import OpenNebulaBackend
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# --- CONFIG ---
+METRICS_QUEUE = 'scaler_metrics_queue'
+ROLE_TO_SCALE = 'FaaS'
+MIN_INSTANCES = 1 # The number of instances to scale down to when idle.
+
+def main():
+    """
+    Monitors a dedicated RabbitMQ metrics queue and scales an OpenNebula
+    OneFlow service role based on the number of messages.
+    """
+    if len(sys.argv) != 4:
+        print("Usage: python main.py <host> <user> <password>")
+        sys.exit(1)
+
+    host = sys.argv[1]
+    user = sys.argv[2]
+    password = sys.argv[3]
+
+    # RabbitMQ management API URL
+    url = f"amqp://{user}:{password}@{host}:5672/"
+    
+    try:
+        # 1. Initialize the OpenNebula client
+        backend = OpenNebulaBackend()
+        logger.info("OpenNebulaBackend initialized successfully.")
+
+        # 2. Connect directly to RabbitMQ
+        connection = pika.BlockingConnection(pika.URLParameters(url))
+        channel = connection.channel()
+        logger.info("Connected to RabbitMQ broker.")
+
+        # 3. Get the message count from our dedicated metrics queue
+        queue_state = channel.queue_declare(queue=METRICS_QUEUE, passive=True)
+        message_count = queue_state.method.message_count
+        
+        logger.info(f"'{METRICS_QUEUE}' has {message_count} messages.")
+
+        # 4. The core scaling logic
+        if message_count > 1:
+            logger.info(f"Scaling role '{ROLE_TO_SCALE}' up to {message_count} instances.")
+            backend.scale_role(ROLE_TO_SCALE, message_count)
+            logger.info("Scaling UP command issued successfully.")
+            
+            # 5. Purge the metrics queue to reset the count for the next run.
+            channel.queue_purge(queue=METRICS_QUEUE)
+            logger.info(f"Metrics queue '{METRICS_QUEUE}' has been purged.")
+
+        else: # No messages, let's scale down to the minimum.
+            logger.info(f"No messages in queue. Scaling role '{ROLE_TO_SCALE}' down to {MIN_INSTANCES} instances.")
+            backend.scale_role(ROLE_TO_SCALE, MIN_INSTANCES)
+            logger.info("Scaling DOWN command issued successfully.")
+
+        connection.close()
+
+    except pika.exceptions.ChannelClosedByBroker as e:
+        logger.critical(f"Error inspecting queue '{METRICS_QUEUE}'. Does it exist and is it bound to the 'jobs_fanout' exchange? Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"An unexpected error occurred: {e}", exc_info=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
