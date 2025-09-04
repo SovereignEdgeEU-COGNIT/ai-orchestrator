@@ -5,6 +5,8 @@ This is the code of the scaler within the Frontend VM of the ServerlessRuntime o
 
 # Run the producer
 
+0. Create virtual env (i.e: using UV)
+
 1. SSH into the Frontend VM of the ServerlessRuntime oneflow-service running the ON Frontend VM.
 
 ```

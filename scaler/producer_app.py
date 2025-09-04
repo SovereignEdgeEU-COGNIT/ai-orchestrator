@@ -19,7 +19,6 @@ def create_message_in_queue(queue_name: str):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
         channel = connection.channel()
 
-        # KEY CHANGE: Check for queue existence without creating it.
         # passive=True will raise an exception if the queue does not exist.
         channel.queue_declare(queue=queue_name, passive=True)
 
