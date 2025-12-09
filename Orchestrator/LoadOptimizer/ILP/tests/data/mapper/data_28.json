@@ -1,0 +1,92 @@
+{
+    "vm_requirements": [
+        {
+            "id": 8,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 200,
+            "state": "running",
+            "host_id": 1,
+            "host_ids": [
+                0,
+                1
+            ]
+        },
+        {
+            "id": 9,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 100,
+            "state": "running",
+            "host_id": 1,
+            "host_ids": [
+                0,
+                1
+            ]
+        },
+        {
+            "id": 10,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 100,
+            "state": "running",
+            "host_id": 0,
+            "host_ids": [
+                0,
+                1
+            ]
+        }
+    ],
+    "host_capacities": [
+        {
+            "id": 0,
+            "cpu": {
+                "total": 64.0,
+                "usage": 2.0
+            },
+            "memory": {
+                "total": 48000,
+                "usage": 400
+            },
+            "disk": {
+                "total": 200,
+                "usage": 0
+            }
+        },
+        {
+            "id": 2,
+            "cpu": {
+                "total": 64.0,
+                "usage": 0.0
+            },
+            "memory": {
+                "total": 48000,
+                "usage": 0.0
+            },
+            "disk": {
+                "total": 200,
+                "usage": 200
+            }
+        }
+    ],
+    "datastore_capacities": [
+        {
+            "id": 0,
+            "size": {
+                "total": 1000,
+                "usage": 200
+            }
+        },
+        {
+            "id": 1,
+            "size": {
+                "total": 1000,
+                "usage": 900
+            }
+        }
+    ],
+    "used_disks": [[[9, 0], 0], [[10, 0], 1]]
+}

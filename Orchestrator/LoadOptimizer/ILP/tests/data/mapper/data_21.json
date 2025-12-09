@@ -1,0 +1,74 @@
+{
+    "vm_requirements": [
+        {
+            "id": 8,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 0,
+            "state": "running",
+            "host_id": 1,
+            "host_ids": [
+                0,
+                1
+            ]
+        },
+        {
+            "id": 9,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 0,
+            "state": "running",
+            "host_id": 1,
+            "host_ids": [
+                0,
+                1
+            ]
+        },
+        {
+            "id": 10,
+            "cpu_ratio": 2.0,
+            "cpu_usage": 2.0,
+            "memory": 400,
+            "disk_size": 0,
+            "state": "running",
+            "host_id": 0,
+            "host_ids": [
+                0,
+                1
+            ]
+        }
+    ],
+    "vm_groups": [
+        {
+            "id": 1,
+            "affined": true,
+            "vm_ids": [8, 9]
+        }
+    ],
+    "host_capacities": [
+        {
+            "id": 0,
+            "cpu": {
+                "total": 64.0,
+                "usage": 2.0
+            },
+            "memory": {
+                "total": 48000,
+                "usage": 400
+            }
+        },
+        {
+            "id": 2,
+            "cpu": {
+                "total": 64.0,
+                "usage": 0.0
+            },
+            "memory": {
+                "total": 48000,
+                "usage": 0.0
+            }
+        }
+    ]
+}

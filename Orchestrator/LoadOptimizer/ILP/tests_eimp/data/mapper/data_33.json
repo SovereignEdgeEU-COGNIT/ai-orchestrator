@@ -1,0 +1,90 @@
+{
+    "vm_requirements": [
+        {
+            "id": 5,
+            "cpu_ratio": 20.0,
+            "cpu_usage": 20.0,
+            "memory": 1000,
+            "state": "pending",
+            "disk_size": 0,
+            "host_id": null,
+            "host_ids": [
+                0,
+                1,
+                2
+            ]
+        },
+        {
+            "id": 6,
+            "cpu_ratio": 10.0,
+            "cpu_usage": 10.0,
+            "memory": 2000,
+            "state": "pending",
+            "disk_size": 0,
+            "host_id": null,
+            "host_ids": [
+                0,
+                1,
+                2
+            ]
+        },
+        {
+            "id": 7,
+            "cpu_ratio": 5.0,
+            "cpu_usage": 2.0,
+            "memory": 4000,
+            "state": "pending",
+            "disk_size": 0,
+            "host_id": null,
+            "host_ids": [
+                0,
+                1,
+                2
+            ]
+        }
+    ],
+    "host_capacities": [
+        {
+            "id": 0,
+            "cpu": {
+                "total": 50.0,
+                "usage": 10.0
+            },
+            "memory": {
+                "total": 20000,
+                "usage": 1000
+            },
+            "base_energy_consumption": 80.0,
+            "per_core_energy_consumption": 8.0,
+            "max_energy_consumption": 1000.0
+        },
+        {
+            "id": 1,
+            "cpu": {
+                "total": 25.0,
+                "usage": 5.0
+            },
+            "memory": {
+                "total": 30000,
+                "usage": 1000
+            },
+            "base_energy_consumption": 80.0,
+            "per_core_energy_consumption": 8.0,
+            "max_energy_consumption": 1000.0
+        },
+        {
+            "id": 2,
+            "cpu": {
+                "total": 12.5,
+                "usage": 2.5
+            },
+            "memory": {
+                "total": 50000,
+                "usage": 1000
+            },
+            "base_energy_consumption": 80.0,
+            "per_core_energy_consumption": 8.0,
+            "max_energy_consumption": 1000.0
+        }
+    ]
+}

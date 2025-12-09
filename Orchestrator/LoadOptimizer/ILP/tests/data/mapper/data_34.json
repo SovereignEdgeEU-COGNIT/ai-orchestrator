@@ -1,0 +1,93 @@
+{
+    "vm_requirements": [
+        {
+            "id": 5,
+            "cpu_ratio": 20.0,
+            "cpu_usage": 20.0,
+            "memory": 1000,
+            "state": "running",
+            "disk_size": 0,
+            "disk_usage": 2.0,
+            "net_usage": 10.0,
+            "host_id": 0,
+            "host_ids": [
+                0,
+                1,
+                2,
+                3
+            ]
+        },
+        {
+            "id": 6,
+            "cpu_ratio": 20.0,
+            "cpu_usage": 20.0,
+            "memory": 1000,
+            "state": "running",
+            "disk_size": 0,
+            "disk_usage": 2.0,
+            "net_usage": 10.0,
+            "host_id": 0,
+            "host_ids": [
+                0,
+                1,
+                2,
+                3
+            ]
+        }
+    ],
+    "host_capacities": [
+        {
+            "id": 0,
+            "cpu": {
+                "total": 40.0,
+                "usage": 40.0
+            },
+            "memory": {
+                "total": 2000,
+                "usage": 2000
+            },
+            "disk_io": 4.0,
+            "net": 20.0
+        },
+        {
+            "id": 1,
+            "cpu": {
+                "total": 35.0,
+                "usage": 0.0
+            },
+            "memory": {
+                "total": 1500,
+                "usage": 0
+            },
+            "disk_io": 3.5,
+            "net": 15.0
+        },
+        {
+            "id": 2,
+            "cpu": {
+                "total": 40.0,
+                "usage": 0.0
+            },
+            "memory": {
+                "total": 1000,
+                "usage": 0
+            },
+            "disk_io": 4.0,
+            "net": 10.0
+        }
+        ,
+        {
+            "id": 3,
+            "cpu": {
+                "total": 20.0,
+                "usage": 0.0
+            },
+            "memory": {
+                "total": 2000,
+                "usage": 0
+            },
+            "disk_io": 2.0,
+            "net": 20.0
+        }
+    ]
+}
