@@ -7,3 +7,5 @@ EnvServer/bin
 EnvServer/**/*.csv
 **/main
 **/main.exe
+
+notes.md

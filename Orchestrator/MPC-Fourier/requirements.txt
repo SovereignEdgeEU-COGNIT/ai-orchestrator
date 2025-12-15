@@ -1,0 +1,8 @@
+Flask
+numpy
+prometheus_client
+#tflite-runtime==2.7.0  # Or newer
+#pycocotools
+#opencv-python-headless==4.5.5.64
+
+#tensorflow==2.17.0

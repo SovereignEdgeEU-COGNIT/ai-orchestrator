@@ -1,0 +1,9 @@
+server:
+  additionalScrapeConfigs:
+    - job_name: 'openwhisk-controller'
+      static_configs:
+        - targets: ['openwhisk-controller.openwhisk:9095']
+
+    - job_name: 'openwhisk-invoker'
+      static_configs:
+        - targets: ['openwhisk-invoker.openwhisk:9095']
