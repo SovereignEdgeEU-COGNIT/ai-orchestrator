@@ -1,2 +1,0 @@
-# Installation
-pip install httpx
